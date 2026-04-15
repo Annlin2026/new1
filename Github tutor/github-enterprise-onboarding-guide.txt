@@ -1,0 +1,236 @@
+GitHub Enterprise 與 Copilot Chat 初次使用說明
+
+適用對象
+第一次使用 GitHub Enterprise、Git、以及 VS Code 內 GitHub Copilot Chat 的組內同仁。
+
+目的
+這份文件根據本次實際操作流程整理，讓同仁了解如何用 GitHub Enterprise 搭配 Copilot Chat 完成以下工作：
+- 查看資料夾與檔案內容
+- 摘要既有文件
+- 依照現有檔案產生新版本
+- 生成對外介紹文件
+- 將變更提交並推送到遠端 Repository
+
+一、你可以用這個工具做什麼
+
+在 VS Code 的 Copilot Chat 中，你可以直接用自然語言要求系統協助處理檔案與 Git 工作，例如：
+
+1. 查看目前資料夾內容
+範例提問：
+現在檔案夾裡有什麼?
+
+用途：
+- 快速了解目前工作區有哪些檔案
+- 確認是否已存在目標檔案
+
+2. 摘要文件內容
+範例提問：
+摘述檔案重點
+
+用途：
+- 快速掌握 HTML、文字檔或教學文件的重點
+- 適合接手別人建立的教材或專案時先做內容理解
+
+3. 依既有內容生成新版本
+範例提問：
+請依照兩份HTML修改出一份V3版本，限制在3頁以內
+
+用途：
+- 從既有版本延伸出新版本
+- 精簡內容、改寫語氣、調整結構
+- 適合教學文件、簡報稿、對外說明稿整理
+
+4. 生成對外介紹文件
+範例提問：
+生成一版對外介紹
+
+用途：
+- 把偏內部說明轉成正式、對外可用的介紹文字
+- 可作為公告、簡介、README 或對外提案基礎
+
+5. 協助推送到 GitHub Enterprise
+範例提問：
+push please
+或
+把這個專案push到我的github remote repo
+
+用途：
+- 協助完成 Git 初始化、commit 與 push
+- 適合第一次不熟 Git 指令的同仁
+
+二、這次實際用到的工作流程
+
+以下是本次對話中實際完成的流程，可作為標準範例：
+
+1. 檢查工作區
+- 確認資料夾內有哪些 HTML 檔案
+- 了解目前教材的版本結構
+
+2. 閱讀並摘要既有文件
+- 讀取 claude-code-tutorial.html
+- 整理出內容主題、結構與重點段落
+
+3. 生成新版本檔案
+- 以既有教學頁面為基礎建立 claude-code-tutorial-v3.html
+- 將原本長篇內容濃縮成較適合列印與速讀的版本
+
+4. 建立補充文字文件
+- 建立資料夾摘要 folder-summary.txt
+- 建立對外介紹 public-introduction.txt
+
+5. 提交到 GitHub
+- 初始化 Git Repository
+- 新增 remote
+- commit 檔案
+- push 到 main branch
+
+三、第一次使用 GitHub Enterprise 前的準備
+
+1. 先確認你有以下權限
+- 已取得 GitHub Enterprise 帳號
+- 已被加入對應的 Organization 或 Repository
+- 有該 Repository 的讀寫權限
+
+2. 本機需安裝 Git
+- Windows 建議先安裝 Git for Windows
+- 安裝完成後可在終端機執行：
+  git --version
+
+3. 建議先設定 Git 使用者資訊
+- 這一步很重要，否則 commit 可能會顯示成自動偵測名稱
+- 建議執行：
+  git config --global user.name "你的姓名"
+  git config --global user.email "你的公司信箱"
+
+四、Git 與 GitHub Enterprise 基本操作
+
+1. 檢查目前狀態
+指令：
+git status --short --branch
+
+用途：
+- 看目前在哪個 branch
+- 看哪些檔案尚未提交
+
+2. 初始化 Repository
+指令：
+git init
+
+適用情境：
+- 當資料夾還不是 Git Repository 時
+- 若出現訊息：fatal: not a git repository
+  代表需要先初始化
+
+3. 加入檔案到暫存區
+指令：
+git add -A
+
+或只加入指定檔案：
+git add -- "Tutorials/檔名"
+
+4. 建立 commit
+指令：
+git commit -m "說明這次修改內容"
+
+範例：
+git commit -m "Add condensed Claude Code tutorial v3"
+
+5. 設定遠端 Repository
+指令：
+git remote add origin https://github.example.com/org/repo.git
+
+若公司使用 GitHub Enterprise Cloud 或 Enterprise Server，網址可能不是 github.com，而是公司自己的網域。
+
+6. 將主要分支改名為 main
+指令：
+git branch -M main
+
+7. 第一次 push 到遠端
+指令：
+git push -u origin main
+
+用途：
+- 將本地 main branch 推送到遠端
+- 建立本地與遠端的追蹤關係
+
+8. 後續再次推送
+指令：
+git push origin main
+
+五、第一次 push 時可能遇到的情況
+
+1. 瀏覽器登入驗證
+你可能會看到類似訊息：
+info: please complete authentication in your browser...
+
+代表系統正在等你到瀏覽器完成登入或公司 SSO 驗證。完成後 push 會繼續進行。
+
+2. 作者資訊是自動偵測的
+如果 commit 後看到系統提示你的 name / email 是自動推測，請盡快設定：
+git config --global user.name "你的姓名"
+git config --global user.email "你的公司信箱"
+
+3. LF / CRLF 警告
+Windows 上可能看到：
+LF will be replaced by CRLF
+
+這通常是換行格式提示，不一定是錯誤。若團隊已有既定規範，再依規範調整 Git line ending 設定。
+
+六、建議同仁直接這樣使用 Copilot Chat
+
+以下是最實用的提問模板，可直接複製修改：
+
+1. 想知道目前有哪些檔案
+現在檔案夾裡有什麼?
+
+2. 想快速讀懂文件
+請摘要這個檔案的重點
+
+3. 想從舊版產生新版
+請依照這份檔案改一版 v2
+請根據兩份 HTML 整理出一版精簡版
+
+4. 想建立內部或對外說明文件
+請根據此文件夾內的檔案生成一份文字檔簡介
+請生成一版對外介紹
+
+5. 想提交與推送
+請幫我 commit 並 push 到 GitHub
+
+七、建議的工作習慣
+
+1. 先看再改
+先請 Copilot 摘要或說明檔案，再進入修改，比直接改更安全。
+
+2. 一次只處理一個明確需求
+例如先做「摘要」、再做「生成 v3」、最後才做「push」，可降低出錯率。
+
+3. commit message 要清楚
+建議 commit 訊息具體描述修改內容，方便後續追蹤。
+
+4. push 前先看狀態
+先執行 git status，確認沒有不想提交的檔案混進去。
+
+5. 對外文件與內部文件分開
+像本次做法一樣，可將內部摘要與對外介紹分開維護，避免誤用。
+
+八、這次對話可以學到的重點
+
+透過 GitHub Enterprise 搭配 Copilot Chat，同仁不需要一開始就熟記所有 Git 指令，也可以完成以下工作：
+- 快速理解資料夾內容
+- 讀懂既有文件
+- 產生新版本教材
+- 建立對外說明文件
+- 將成果提交並同步到遠端 Repository
+
+重點不只是「會下指令」，而是能用自然語言把需求講清楚，讓工具協助完成具體任務。
+
+九、建議的新人上手順序
+
+1. 先學會看資料夾內容與摘要文件
+2. 再學會新增或改寫文件
+3. 再學會 git status / add / commit / push
+4. 最後再進一步學 branch、pull request、review 等團隊協作流程
+
+更新日期
+2026-04-15

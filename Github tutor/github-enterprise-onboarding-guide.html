@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Enterprise 與 Copilot Chat 初次使用說明</title>
+<style>
+:root {
+  --ink: #18212f;
+  --muted: #5f6f82;
+  --line: #d9e2ec;
+  --paper: #f4f7fb;
+  --card: #ffffff;
+  --accent: #0f766e;
+  --accent-strong: #115e59;
+  --accent-soft: #ccfbf1;
+  --accent-alt: #1d4ed8;
+  --warm: #b45309;
+  --shadow: 0 20px 50px rgba(24, 33, 47, 0.08);
+  --radius: 20px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(29, 78, 216, 0.08), transparent 28%),
+    radial-gradient(circle at top right, rgba(15, 118, 110, 0.14), transparent 24%),
+    linear-gradient(180deg, #fbfdff 0%, var(--paper) 100%);
+  line-height: 1.7;
+}
+
+a { color: inherit; }
+code, pre { font-family: "Cascadia Code", Consolas, monospace; }
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.82);
+  border-bottom: 1px solid rgba(217, 226, 236, 0.9);
+}
+
+.topbar-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.brand-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-alt));
+  box-shadow: 0 12px 24px rgba(15, 118, 110, 0.18);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.nav a {
+  text-decoration: none;
+  font-size: 14px;
+  color: var(--muted);
+  padding: 8px 12px;
+  border-radius: 999px;
+  transition: 0.2s ease;
+}
+
+.nav a:hover {
+  color: var(--ink);
+  background: rgba(15, 118, 110, 0.08);
+}
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 28px;
+  align-items: stretch;
+  margin-bottom: 36px;
+}
+
+.hero-main,
+.hero-side,
+.panel,
+.section-card,
+.prompt-card,
+.tip-card,
+.timeline-card,
+.faq-item,
+.summary-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(217, 226, 236, 0.9);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.hero-main {
+  padding: 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-main::after {
+  content: "";
+  position: absolute;
+  inset: auto -40px -40px auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(15, 118, 110, 0.18), transparent 68%);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  padding: 8px 14px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+}
+
+.hero h1 {
+  margin: 0 0 16px;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.1;
+}
+
+.hero p {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.meta-chip {
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.hero-side {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.hero-side h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.hero-side ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.hero-side li + li { margin-top: 8px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 28px;
+}
+
+.content {
+  display: grid;
+  gap: 28px;
+}
+
+.panel { padding: 30px; }
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.section-tag {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.lead {
+  color: var(--muted);
+  margin: 0 0 22px;
+}
+
+.feature-grid,
+.two-col,
+.prompt-grid,
+.tips-grid,
+.summary-grid,
+.sequence-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.prompt-grid,
+.tips-grid,
+.summary-grid,
+.sequence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.section-card,
+.prompt-card,
+.tip-card,
+.timeline-card,
+.summary-card { padding: 22px; }
+
+.section-card h3,
+.prompt-card h3,
+.tip-card h3,
+.timeline-card h3,
+.summary-card h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.section-card p,
+.prompt-card p,
+.tip-card p,
+.timeline-card p,
+.summary-card p,
+.summary-card ul,
+.section-card ul,
+.timeline-card ul {
+  margin: 0;
+  color: var(--muted);
+}
+
+.section-card ul,
+.timeline-card ul,
+.summary-card ul {
+  padding-left: 18px;
+}
+
+.section-card li + li,
+.timeline-card li + li,
+.summary-card li + li { margin-top: 6px; }
+
+.card-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.prompt-box,
+.code-block {
+  margin-top: 14px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(24, 33, 47, 0.08);
+}
+
+.prompt-box strong,
+.code-head {
+  display: block;
+  padding: 10px 14px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: #e8eef9;
+  color: var(--accent-alt);
+}
+
+.prompt-box pre,
+.code-block pre {
+  margin: 0;
+  padding: 16px;
+  white-space: pre-wrap;
+  background: #0f172a;
+  color: #dbeafe;
+  overflow-x: auto;
+  font-size: 14px;
+}
+
+.code-head {
+  background: #dcfce7;
+  color: var(--accent-strong);
+}
+
+.callout {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: #f8fafc;
+}
+
+.callout strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.callout.warn {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.timeline {
+  display: grid;
+  gap: 16px;
+}
+
+.timeline-card {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.timeline-step {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent-alt));
+  color: white;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.faq-list {
+  display: grid;
+  gap: 14px;
+}
+
+.faq-item { overflow: hidden; }
+
+.faq-item summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 20px 22px;
+  font-weight: 700;
+  position: relative;
+}
+
+.faq-item summary::-webkit-details-marker { display: none; }
+
+.faq-item summary::after {
+  content: "+";
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22px;
+  color: var(--accent-strong);
+}
+
+.faq-item[open] summary::after { content: "-"; }
+
+.faq-content {
+  padding: 0 22px 22px;
+  color: var(--muted);
+}
+
+.faq-content p,
+.faq-content ul { margin: 0; }
+
+.sidebar {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  order: -1;
+}
+
+.sticky-stack {
+  position: sticky;
+  top: 92px;
+  display: grid;
+  gap: 18px;
+}
+
+.mini-nav { padding: 22px; }
+
+.mini-nav h3,
+.summary-card h3 { margin: 0 0 12px; }
+
+.mini-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mini-nav li + li { margin-top: 10px; }
+
+.mini-nav a {
+  display: block;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: 0.2s ease;
+}
+
+.mini-nav a:hover {
+  color: var(--accent-strong);
+  background: rgba(15, 118, 110, 0.08);
+}
+
+.status-list {
+  display: grid;
+  gap: 12px;
+}
+
+.status-item {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+}
+
+.status-item strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.footer {
+  margin-top: 24px;
+  padding: 26px 0 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+@media (max-width: 980px) {
+  .hero,
+  .layout,
+  .feature-grid,
+  .two-col,
+  .prompt-grid,
+  .tips-grid,
+  .summary-grid,
+  .sequence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sticky-stack { position: static; }
+}
+
+@media (max-width: 760px) {
+  .topbar-inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .hero-main,
+  .hero-side,
+  .panel { padding: 24px; }
+
+  .shell { padding: 20px 16px 56px; }
+
+  .timeline-card { grid-template-columns: 1fr; }
+
+  .timeline-step {
+    width: 42px;
+    height: 42px;
+  }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-badge" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 18l6-6-6-6"></path>
+          <path d="M8 6l-6 6 6 6"></path>
+          <path d="M14.5 4l-5 16"></path>
+        </svg>
+      </div>
+      <div>
+        <div>GitHub Enterprise 與 Copilot Chat</div>
+        <div style="font-size: 12px; color: var(--muted); font-weight: 600;">內部上手說明</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="shell">
+  <div class="layout">
+    <div class="content">
+      <section class="hero">
+        <article class="hero-main">
+          <div class="eyebrow">更新日期 2026-04-15</div>
+          <h1>用自然語言完成 GitHub Enterprise 與 Copilot Chat 的日常工作</h1>
+          <p>這份頁面直接根據原始文字說明整理，目標是讓第一次接觸 GitHub Enterprise、Git 與 VS Code 內 GitHub Copilot Chat 的同仁，能迅速掌握操作順序與實務用法。</p>
+          <div class="hero-meta">
+            <div class="meta-chip">適用對象：組內新手同仁</div>
+            <div class="meta-chip">核心工具：GitHub Enterprise / Git / VS Code Copilot Chat</div>
+            <div class="meta-chip">目標：理解、生成、提交、推送</div>
+          </div>
+        </article>
+        <aside class="hero-side">
+          <div>
+            <h2>這份說明涵蓋什麼</h2>
+            <ul>
+              <li>查看資料夾與檔案內容</li>
+              <li>摘要既有文件</li>
+              <li>依照現有檔案產生新版本</li>
+              <li>生成對外介紹文件</li>
+              <li>將變更提交並推送到遠端 Repository</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <strong>目的</strong>
+            不要求一開始就熟記所有 Git 指令，而是先學會把需求講清楚，讓工具協助完成實際任務。
+          </div>
+        </aside>
+      </section>
+
+      <section class="panel" id="overview">
+        <div class="section-head">
+          <h2>一、你可以用這個工具做什麼</h2>
+          <div class="section-tag">Capabilities</div>
+        </div>
+        <p class="lead">在 VS Code 的 Copilot Chat 中，你可以直接用自然語言要求系統協助處理檔案與 Git 工作。下面把用途、提問方式與使用情境整理成可直接看的卡片。</p>
+        <div class="feature-grid">
+          <article class="section-card">
+            <div class="card-index">1</div>
+            <h3>查看目前資料夾內容</h3>
+            <p>快速了解目前工作區有哪些檔案，先確認是否已存在目標檔案。</p>
+            <div class="prompt-box">
+              <strong>範例提問</strong>
+              <pre>現在檔案夾裡有什麼?</pre>
+            </div>
+          </article>
+          <article class="section-card">
+            <div class="card-index">2</div>
+            <h3>摘要文件內容</h3>
+            <p>快速掌握 HTML、文字檔或教學文件重點，適合接手別人建立的教材或專案。</p>
+            <div class="prompt-box">
+              <strong>範例提問</strong>
+              <pre>摘述檔案重點</pre>
+            </div>
+          </article>
+          <article class="section-card">
+            <div class="card-index">3</div>
+            <h3>依既有內容生成新版本</h3>
+            <p>從既有版本延伸出新版本，精簡內容、改寫語氣、調整結構，適合教學文件、簡報稿與對外說明稿。</p>
+            <div class="prompt-box">
+              <strong>範例提問</strong>
+              <pre>請依照兩份HTML修改出一份V3版本，限制在3頁以內</pre>
+            </div>
+          </article>
+          <article class="section-card">
+            <div class="card-index">4</div>
+            <h3>生成對外介紹文件</h3>
+            <p>把偏內部說明轉成正式、對外可用的介紹文字，可作為公告、README 或對外提案基礎。</p>
+            <div class="prompt-box">
+              <strong>範例提問</strong>
+              <pre>生成一版對外介紹</pre>
+            </div>
+          </article>
+          <article class="section-card" style="grid-column: 1 / -1;">
+            <div class="card-index">5</div>
+            <h3>協助推送到 GitHub Enterprise</h3>
+            <p>協助完成 Git 初始化、commit 與 push，特別適合第一次不熟 Git 指令的同仁。</p>
+            <div class="two-col" style="margin-top: 14px;">
+              <div class="prompt-box">
+                <strong>範例提問</strong>
+                <pre>push please</pre>
+              </div>
+              <div class="prompt-box">
+                <strong>範例提問</strong>
+                <pre>把這個專案push到我的github remote repo</pre>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="workflow">
+        <div class="section-head">
+          <h2>二、這次實際用到的工作流程</h2>
+          <div class="section-tag">Workflow</div>
+        </div>
+        <p class="lead">以下是這次對話實際完成的順序，可直接當成第一次帶人的標準範例。</p>
+        <div class="timeline">
+          <article class="timeline-card">
+            <div class="timeline-step">1</div>
+            <div>
+              <h3>檢查工作區</h3>
+              <p>確認資料夾內有哪些 HTML 檔案，了解目前教材的版本結構。</p>
+            </div>
+          </article>
+          <article class="timeline-card">
+            <div class="timeline-step">2</div>
+            <div>
+              <h3>閱讀並摘要既有文件</h3>
+              <p>讀取 claude-code-tutorial.html，整理出內容主題、結構與重點段落。</p>
+            </div>
+          </article>
+          <article class="timeline-card">
+            <div class="timeline-step">3</div>
+            <div>
+              <h3>生成新版本檔案</h3>
+              <p>以既有教學頁面為基礎建立 claude-code-tutorial-v3.html，將長篇內容濃縮成較適合列印與速讀的版本。</p>
+            </div>
+          </article>
+          <article class="timeline-card">
+            <div class="timeline-step">4</div>
+            <div>
+              <h3>建立補充文字文件</h3>
+              <p>建立 folder-summary.txt 與 public-introduction.txt，補足摘要與對外版本。</p>
+            </div>
+          </article>
+          <article class="timeline-card">
+            <div class="timeline-step">5</div>
+            <div>
+              <h3>提交到 GitHub</h3>
+              <p>初始化 Git Repository、新增 remote、commit 檔案，最後 push 到 main branch。</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="preparation">
+        <div class="section-head">
+          <h2>三、第一次使用 GitHub Enterprise 前的準備</h2>
+          <div class="section-tag">Preparation</div>
+        </div>
+        <div class="two-col">
+          <article class="section-card">
+            <h3>先確認你有以下權限</h3>
+            <ul>
+              <li>已取得 GitHub Enterprise 帳號</li>
+              <li>已被加入對應的 Organization 或 Repository</li>
+              <li>有該 Repository 的讀寫權限</li>
+            </ul>
+          </article>
+          <article class="section-card">
+            <h3>本機需安裝 Git</h3>
+            <p>Windows 建議先安裝 Git for Windows。安裝完成後可在終端機執行以下指令：</p>
+            <div class="code-block">
+              <div class="code-head">檢查版本</div>
+              <pre>git --version</pre>
+            </div>
+          </article>
+        </div>
+        <div class="callout warn">
+          <strong>建議先設定 Git 使用者資訊</strong>
+          這一步很重要，否則 commit 可能會顯示成自動偵測名稱。
+        </div>
+        <div class="code-block">
+          <div class="code-head">建議執行</div>
+          <pre>git config --global user.name "你的姓名"
+git config --global user.email "你的公司信箱"</pre>
+        </div>
+      </section>
+
+      <section class="panel" id="git-basics">
+        <div class="section-head">
+          <h2>四、Git 與 GitHub Enterprise 基本操作</h2>
+          <div class="section-tag">Git Basics</div>
+        </div>
+        <p class="lead">這一段把第一次最常用的 Git 指令分成八個步驟，照順序做就能完成從初始化到推送。</p>
+        <div class="summary-grid">
+          <article class="summary-card">
+            <h3>1. 檢查目前狀態</h3>
+            <div class="code-block">
+              <div class="code-head">指令</div>
+              <pre>git status --short --branch</pre>
+            </div>
+            <p>用途：看目前在哪個 branch，以及哪些檔案尚未提交。</p>
+          </article>
+          <article class="summary-card">
+            <h3>2. 初始化 Repository</h3>
+            <div class="code-block">
+              <div class="code-head">指令</div>
+              <pre>git init</pre>
+            </div>
+            <p>適用情境：當資料夾還不是 Git Repository 時。若出現 fatal: not a git repository，代表需要先初始化。</p>
+          </article>
+          <article class="summary-card">
+            <h3>3. 加入檔案到暫存區</h3>
+            <div class="code-block">
+              <div class="code-head">指令</div>
+              <pre>git add -A
+git add -- "Tutorials/檔名"</pre>
+            </div>
+            <p>可一次加入全部檔案，也可以只加入指定檔案。</p>
+          </article>
+          <article class="summary-card">
+            <h3>4. 建立 commit</h3>
+            <div class="code-block">
+              <div class="code-head">範例</div>
+              <pre>git commit -m "說明這次修改內容"
+git commit -m "Add condensed Claude Code tutorial v3"</pre>
+            </div>
+            <p>commit message 建議具體描述修改內容，方便後續追蹤。</p>
+          </article>
+          <article class="summary-card">
+            <h3>5. 設定遠端 Repository</h3>
+            <div class="code-block">
+              <div class="code-head">指令</div>
+              <pre>git remote add origin https://github.example.com/org/repo.git</pre>
+            </div>
+            <p>公司若使用 GitHub Enterprise Cloud 或 Enterprise Server，網址可能不是 github.com，而是公司自己的網域。</p>
+          </article>
+          <article class="summary-card">
+            <h3>6. 將主要分支改名為 main</h3>
+            <div class="code-block">
+              <div class="code-head">指令</div>
+              <pre>git branch -M main</pre>
+            </div>
+            <p>讓本地主要分支名稱與遠端慣例一致。</p>
+          </article>
+          <article class="summary-card">
+            <h3>7. 第一次 push 到遠端</h3>
+            <div class="code-block">
+              <div class="code-head">指令</div>
+              <pre>git push -u origin main</pre>
+            </div>
+            <p>用途：將本地 main branch 推送到遠端，並建立本地與遠端的追蹤關係。</p>
+          </article>
+          <article class="summary-card">
+            <h3>8. 後續再次推送</h3>
+            <div class="code-block">
+              <div class="code-head">指令</div>
+              <pre>git push origin main</pre>
+            </div>
+            <p>之後只要有新 commit，使用這行就能再次同步。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="first-push">
+        <div class="section-head">
+          <h2>五、第一次 push 時可能遇到的情況</h2>
+          <div class="section-tag">Push Notes</div>
+        </div>
+        <div class="faq-list">
+          <details class="faq-item" open>
+            <summary>瀏覽器登入驗證</summary>
+            <div class="faq-content">
+              <p>你可能會看到類似訊息：</p>
+              <div class="code-block">
+                <div class="code-head">訊息範例</div>
+                <pre>info: please complete authentication in your browser...</pre>
+              </div>
+              <p>代表系統正在等你到瀏覽器完成登入或公司 SSO 驗證。完成後 push 會繼續進行。</p>
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>作者資訊是自動偵測的</summary>
+            <div class="faq-content">
+              <p>如果 commit 後看到系統提示你的 name / email 是自動推測，請盡快設定：</p>
+              <div class="code-block">
+                <div class="code-head">設定指令</div>
+                <pre>git config --global user.name "你的姓名"
+git config --global user.email "你的公司信箱"</pre>
+              </div>
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>LF / CRLF 警告</summary>
+            <div class="faq-content">
+              <p>Windows 上可能看到：</p>
+              <div class="code-block">
+                <div class="code-head">警告內容</div>
+                <pre>LF will be replaced by CRLF</pre>
+              </div>
+              <p>這通常是換行格式提示，不一定是錯誤。若團隊已有既定規範，再依規範調整 Git line ending 設定。</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="panel" id="prompts">
+        <div class="section-head">
+          <h2>六、建議同仁直接這樣使用 Copilot Chat</h2>
+          <div class="section-tag">Prompt Templates</div>
+        </div>
+        <p class="lead">以下是最實用的提問模板，可直接複製修改。</p>
+        <div class="prompt-grid">
+          <article class="prompt-card">
+            <h3>1. 想知道目前有哪些檔案</h3>
+            <div class="prompt-box">
+              <strong>可直接提問</strong>
+              <pre>現在檔案夾裡有什麼?</pre>
+            </div>
+          </article>
+          <article class="prompt-card">
+            <h3>2. 想快速讀懂文件</h3>
+            <div class="prompt-box">
+              <strong>可直接提問</strong>
+              <pre>請摘要這個檔案的重點</pre>
+            </div>
+          </article>
+          <article class="prompt-card">
+            <h3>3. 想從舊版產生新版</h3>
+            <div class="prompt-box">
+              <strong>可直接提問</strong>
+              <pre>請依照這份檔案改一版 v2
+請根據兩份 HTML 整理出一版精簡版</pre>
+            </div>
+          </article>
+          <article class="prompt-card">
+            <h3>4. 想建立內部或對外說明文件</h3>
+            <div class="prompt-box">
+              <strong>可直接提問</strong>
+              <pre>請根據此文件夾內的檔案生成一份文字檔簡介
+請生成一版對外介紹</pre>
+            </div>
+          </article>
+          <article class="prompt-card" style="grid-column: 1 / -1;">
+            <h3>5. 想提交與推送</h3>
+            <div class="prompt-box">
+              <strong>可直接提問</strong>
+              <pre>請幫我 commit 並 push 到 GitHub</pre>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="habits">
+        <div class="section-head">
+          <h2>七、建議的工作習慣</h2>
+          <div class="section-tag">Habits</div>
+        </div>
+        <div class="tips-grid">
+          <article class="tip-card">
+            <div class="card-index">1</div>
+            <h3>先看再改</h3>
+            <p>先請 Copilot 摘要或說明檔案，再進入修改，比直接改更安全。</p>
+          </article>
+          <article class="tip-card">
+            <div class="card-index">2</div>
+            <h3>一次只處理一個明確需求</h3>
+            <p>例如先做摘要、再做生成 v3、最後才做 push，可降低出錯率。</p>
+          </article>
+          <article class="tip-card">
+            <div class="card-index">3</div>
+            <h3>commit message 要清楚</h3>
+            <p>建議 commit 訊息具體描述修改內容，方便後續追蹤。</p>
+          </article>
+          <article class="tip-card">
+            <div class="card-index">4</div>
+            <h3>push 前先看狀態</h3>
+            <p>先執行 git status，確認沒有不想提交的檔案混進去。</p>
+          </article>
+          <article class="tip-card" style="grid-column: 1 / -1;">
+            <div class="card-index">5</div>
+            <h3>對外文件與內部文件分開</h3>
+            <p>像本次做法一樣，可將內部摘要與對外介紹分開維護，避免誤用。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="takeaways">
+        <div class="section-head">
+          <h2>八、這次對話可以學到的重點</h2>
+          <div class="section-tag">Key Takeaways</div>
+        </div>
+        <div class="summary-grid">
+          <article class="summary-card">
+            <h3>透過這組工具可以完成</h3>
+            <ul>
+              <li>快速理解資料夾內容</li>
+              <li>讀懂既有文件</li>
+              <li>產生新版本教材</li>
+              <li>建立對外說明文件</li>
+              <li>將成果提交並同步到遠端 Repository</li>
+            </ul>
+          </article>
+          <article class="summary-card">
+            <h3>真正的重點</h3>
+            <p>重點不只是會下指令，而是能用自然語言把需求講清楚，讓工具協助完成具體任務。</p>
+            <div class="callout">
+              <strong>理解順序</strong>
+              先會描述需求，再逐步熟悉 Git 細節，學習曲線會更平順。
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="onboarding">
+        <div class="section-head">
+          <h2>九、建議的新人上手順序</h2>
+          <div class="section-tag">Onboarding Path</div>
+        </div>
+        <div class="sequence-grid">
+          <article class="summary-card">
+            <div class="card-index">1</div>
+            <h3>先學會看資料夾內容與摘要文件</h3>
+            <p>先能理解工作區與既有資料，再做後續操作。</p>
+          </article>
+          <article class="summary-card">
+            <div class="card-index">2</div>
+            <h3>再學會新增或改寫文件</h3>
+            <p>先處理文件生成與改寫，熟悉 Copilot 的合作方式。</p>
+          </article>
+          <article class="summary-card">
+            <div class="card-index">3</div>
+            <h3>再學會 git status / add / commit / push</h3>
+            <p>建立最基本的版本控制概念與推送流程。</p>
+          </article>
+          <article class="summary-card">
+            <div class="card-index">4</div>
+            <h3>最後再進一步學 branch、pull request、review</h3>
+            <p>等基本流程穩定後，再進入團隊協作流程。</p>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <aside class="sidebar">
+      <div class="sticky-stack">
+        <section class="summary-card mini-nav">
+          <h3>主選單</h3>
+          <ul>
+            <li><a href="#overview">功能概覽</a></li>
+            <li><a href="#workflow">實際流程</a></li>
+            <li><a href="#preparation">使用前準備</a></li>
+            <li><a href="#git-basics">Git 基本操作</a></li>
+            <li><a href="#first-push">第一次 Push</a></li>
+            <li><a href="#prompts">提問模板</a></li>
+            <li><a href="#habits">工作習慣</a></li>
+            <li><a href="#takeaways">重點整理</a></li>
+            <li><a href="#onboarding">上手順序</a></li>
+          </ul>
+        </section>
+
+        <section class="summary-card">
+          <h3>首次使用檢查</h3>
+          <div class="status-list">
+            <div class="status-item">
+              <strong>帳號權限</strong>
+              已取得 GitHub Enterprise 帳號並加入對應 Repository。
+            </div>
+            <div class="status-item">
+              <strong>本機環境</strong>
+              Git 已安裝，可執行 <code>git --version</code>。
+            </div>
+            <div class="status-item">
+              <strong>身份資訊</strong>
+              已設定 <code>user.name</code> 與 <code>user.email</code>。
+            </div>
+          </div>
+        </section>
+
+        <section class="summary-card">
+          <h3>一句話提醒</h3>
+          <p>先描述需求，再讓工具幫你完成；不要一開始就逼自己背完整指令集。</p>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    GitHub Enterprise 與 Copilot Chat 初次使用說明<br>
+    內容來源：github-enterprise-onboarding-guide.txt
+  </footer>
+</main>
+</body>
+</html>
