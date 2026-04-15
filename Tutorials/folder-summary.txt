@@ -1,0 +1,29 @@
+Tutorials 資料夾簡介
+
+此資料夾主要收錄 Claude Code 入門教學相關的 HTML 教材，內容以繁體中文撰寫，適合作為教學展示、內部分享或自學參考。
+
+整體主題
+- 介紹 Claude Code 的定位與用途
+- 說明系統需求與安裝方式
+- 提供 Windows 使用者的 Git for Windows 安裝重點
+- 整理基本指令、權限模式、快捷鍵與特殊語法
+- 補充進階功能與常見問題
+
+檔案說明
+
+1. claude-code-tutorial.html
+這是完整版本的 Claude Code 入門教學頁面，內容包含從安裝、第一次使用、基本指令、進階功能到 FAQ 的完整說明，適合第一次接觸 Claude Code 的讀者。
+
+2. claude-code-tutorial-v2.html
+這是第二版教學頁面，保留完整教學架構與視覺設計，可作為版本化備份或後續調整的基礎。就目前內容來看，與原始版本的核心內容一致。
+
+3. claude-code-tutorial-v3.html
+這是精簡版教學頁面，將原本較長的內容濃縮成單頁速查格式，保留安裝前檢查、快速安裝、核心指令、權限模式、建議工作流程與 FAQ，並針對列印需求做了控制，適合快速閱讀與 3 頁內輸出。
+
+建議使用方式
+- 需要完整教學時，優先閱讀 claude-code-tutorial.html 或 claude-code-tutorial-v2.html。
+- 需要簡報、速讀或列印版本時，使用 claude-code-tutorial-v3.html。
+- 若後續還要新增版本，建議延續 v3 的命名方式管理不同用途的教學稿。
+
+更新日期
+2026-04-15
