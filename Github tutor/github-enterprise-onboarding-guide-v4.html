@@ -683,6 +683,22 @@
         line-height: 1.7;
     }
 
+    .context-menu-visual {
+        margin: 0 0 18px 0;
+        padding: 10px;
+        border-radius: 16px;
+        border: 1px solid rgba(30, 57, 50, 0.1);
+        background: linear-gradient(180deg, #ffffff, #f7fbf9);
+        box-shadow: 0 12px 24px rgba(30, 57, 50, 0.05);
+    }
+
+    .context-menu-visual img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+    }
+
     .context-menu-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -755,6 +771,114 @@
         margin-bottom: 5px;
     }
 
+    .setup-flow-grid {
+        display: grid;
+        gap: 18px;
+        margin-top: 18px;
+    }
+
+    .setup-flow-step {
+        position: relative;
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 18px;
+        margin: 0;
+        align-items: start;
+    }
+
+    .setup-flow-step::after {
+        content: "";
+        position: absolute;
+        left: 35px;
+        top: 72px;
+        bottom: -18px;
+        width: 2px;
+        background: linear-gradient(180deg, rgba(0, 117, 74, 0.3), rgba(138, 199, 184, 0.12));
+    }
+
+    .setup-flow-step:last-child::after {
+        display: none;
+    }
+
+    .setup-flow-index {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 2px;
+    }
+
+    .setup-flow-card {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(260px, 1.1fr);
+        gap: 18px;
+        min-width: 0;
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(30, 57, 50, 0.1);
+        background: linear-gradient(180deg, #ffffff, #f8fcfa);
+        box-shadow: 0 10px 22px rgba(30, 57, 50, 0.05);
+    }
+
+    .setup-flow-copy {
+        min-width: 0;
+        align-self: center;
+    }
+
+    .setup-flow-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        box-shadow: 0 10px 20px rgba(0, 117, 74, 0.22);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+    }
+
+    .setup-flow-title {
+        margin: 0 0 8px 0;
+        color: var(--primary-color);
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+    .setup-flow-desc {
+        margin: 0;
+        color: var(--text-light);
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .setup-flow-image-frame {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid rgba(30, 57, 50, 0.08);
+        background: #eef5f1;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .setup-flow-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+        background: #ffffff;
+    }
+
+    .setup-flow-image.is-step-3 {
+        object-position: center center;
+    }
+
     @media (max-width: 900px) {
         body {
             display: block;
@@ -785,6 +909,35 @@
         .context-menu-grid,
         ul.feature-list.feature-card-list {
             grid-template-columns: 1fr;
+        }
+
+        .setup-flow-grid {
+            gap: 12px;
+        }
+
+        .setup-flow-step {
+            grid-template-columns: 56px minmax(0, 1fr);
+        }
+
+        .setup-flow-step::after {
+            left: 27px;
+            top: 62px;
+            bottom: -12px;
+        }
+
+        .setup-flow-card {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .setup-flow-badge {
+            width: 44px;
+            height: 44px;
+            font-size: 13px;
+        }
+
+        .setup-flow-image-frame {
+            aspect-ratio: 5 / 4;
         }
 
         .content-section {
@@ -838,6 +991,7 @@
         <nav>
             <ul>
                 <li><a href="#intro">什麼是GitHub Enterprise</a></li>
+                <li><a href="#specs">產品規格</a></li>
                 <li><a href="#setup">初次使用</a></li>
                 <li><a href="#features">VS Code 圖標功能介紹</a></li>
                 <li><a href="#syntax">基本語法</a></li>
@@ -1011,6 +1165,37 @@
             </div>
         </section>
 
+        <section id="specs" class="content-section">
+            <h2 class="section-title">產品規格</h2>
+            <p class="section-intro">以下整理 Copilot Enterprise 目前常用的授權與配額資訊，方便快速查閱。</p>
+            <div class="comparison-card">
+                <div class="comparison-scroll">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>產品名稱</th>
+                                <th>Copilot Enterprise</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">價格</th>
+                                <td>每個已授權席次每月 39 美元</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Premium Requests 配額</th>
+                                <td>每位使用者每月 1000 次</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">更新時間</th>
+                                <td>每月 1 日更新</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <section id="setup" class="content-section">
             <h2 class="section-title">初次使用：連接 GitHub Enterprise 與 VS Code Copilot</h2>
             <p class="section-intro">第一次使用時，建議先完成帳號登入、組織授權與 Copilot 狀態確認，再開始開發工作。</p>
@@ -1026,11 +1211,57 @@
                 <li><strong>完成組織授權或 SSO 驗證</strong>：瀏覽器開啟後，請依公司要求完成登入、授權或單一登入驗證。</li>
                 <li><strong>若系統要求輸入 Enterprise 網址</strong>：請填入組內提供的 GitHub Enterprise 網址或 Server URI，並以實際配發資訊為準。</li>
                 <li><strong>確認 Copilot 狀態</strong>：驗證成功後，VS Code 右下角會顯示 Copilot 圖示，且不應出現停用或授權失敗的狀態。</li>
-                <li><strong>進行簡單測試</strong>：開啟任一程式檔案，輸入幾行註解或函式名稱，確認是否出現灰色的 Copilot 建議內容。</li>
+                <li><strong>進行簡單測試</strong>：開啟任一程式檔案，輸入幾行註解或函式名稱，確認Copilot是否順利產生回應。</li>
             </ol>
 
             <div class="highlight-box">
                 <p><strong>建議：</strong>若已成功登入，但看不到 Copilot 建議或對話功能，通常可先嘗試重新整理 VS Code 視窗，或重新登入帳號以同步授權狀態。</p>
+            </div>
+
+            <h3>登入流程參考</h3>
+            <div class="setup-flow-grid">
+                <figure class="setup-flow-step">
+                    <div class="setup-flow-index" aria-hidden="true">
+                        <div class="setup-flow-badge">01</div>
+                    </div>
+                    <div class="setup-flow-card">
+                        <figcaption class="setup-flow-copy">
+                            <p class="setup-flow-title">開啟登入選單</p>
+                            <p class="setup-flow-desc">從 VS Code 左下角的帳戶區域或登入提示進入 GitHub 相關登入流程，作為整個連線設定的起點。</p>
+                        </figcaption>
+                        <div class="setup-flow-image-frame">
+                            <img class="setup-flow-image is-step-1" src="login prosess/登入位置2.png" alt="登入流程圖步驟 1：開啟登入選單">
+                        </div>
+                    </div>
+                </figure>
+                <figure class="setup-flow-step">
+                    <div class="setup-flow-index" aria-hidden="true">
+                        <div class="setup-flow-badge">02</div>
+                    </div>
+                    <div class="setup-flow-card">
+                        <figcaption class="setup-flow-copy">
+                            <p class="setup-flow-title">完成登入與授權</p>
+                            <p class="setup-flow-desc">依照公司使用情境選擇正確的登入方式，並在跳出的授權頁面中完成帳號驗證、組織授權或 SSO 流程。</p>
+                        </figcaption>
+                        <div class="setup-flow-image-frame">
+                            <img class="setup-flow-image is-step-2" src="login prosess/登入位置3.png" alt="登入流程圖步驟 2：完成登入與授權">
+                        </div>
+                    </div>
+                </figure>
+                <figure class="setup-flow-step">
+                    <div class="setup-flow-index" aria-hidden="true">
+                        <div class="setup-flow-badge">03</div>
+                    </div>
+                    <div class="setup-flow-card">
+                        <figcaption class="setup-flow-copy">
+                            <p class="setup-flow-title">返回 VS Code 確認完成</p>
+                            <p class="setup-flow-desc">完成授權後返回 VS Code，確認登入狀態已同步成功，並檢查 Copilot 是否能正常回應與提供建議。</p>
+                        </figcaption>
+                        <div class="setup-flow-image-frame">
+                            <img class="setup-flow-image is-step-3" src="login prosess/登入位置4.png" alt="登入流程圖步驟 3：返回 VS Code 確認完成">
+                        </div>
+                    </div>
+                </figure>
             </div>
         </section>
 
@@ -1090,7 +1321,10 @@
             <div class="icon-container context-menu-container">
                 <div>
                     <div class="icon-title">Copilot對話模式選擇教學</div>
-                    <p class="context-menu-intro">當您點擊位於「+」右側的圖標，模式選單可協助您依照當前需求切換不同的互動方式。以下為常見模式與其對應用途：</p>
+                    <p class="context-menu-intro">模式選單可協助您依照當前需求切換不同的互動方式。以下為常見模式與其對應用途：</p>
+                    <figure class="context-menu-visual">
+                        <img src="對話模式選單.png" alt="Copilot 對話模式選單示意圖">
+                    </figure>
                     <div class="context-menu-grid">
                         <article class="context-menu-card">
                             <p class="context-menu-name">🤖 Agent</p>
@@ -1118,28 +1352,25 @@
 
             <div class="icon-container context-menu-container">
                 <div>
-                    <div class="icon-title">Copilot模型選擇教學</div>
-                    <p class="context-menu-intro">模式選單可協助您依照當前需求切換不同的互動方式。以下為常見模式與其對應用途：</p>
+                    <div class="icon-title">LLM模型選擇</div>
+                    <p class="context-menu-intro">您可依照當前需求切換至不同的LLM模型。以下為copilot主要LLM模型與其對應用途：</p>
+                    <figure class="context-menu-visual">
+                        <img src="LLM模型選單.png" alt="Copilot LLM 模型選單示意圖">
+                    </figure>
                     <div class="context-menu-grid">
                         <article class="context-menu-card">
-                            <p class="context-menu-name">🤖 Agent</p>
-                            <p class="context-menu-desc">描述要建置的內容<br>Describe what to build</p>
-                            <p class="context-menu-use"><strong>執行模式：</strong>當您有明確的開發目標（例如：建立一個新的數據清洗腳本）時使用。AI 會嘗試生成完整的代碼結構或文件。</p>
+                            <p class="context-menu-name">Claude 4.6 Opus</p>
+                            <p class="context-menu-desc">擅長產生高品質的前端程式碼、UI/UX設計。</p>
+                            <p class="context-menu-use">在處理複雜的多輪對話方面也具有極高的可靠性。</p>
                         </article>
                         <article class="context-menu-card">
-                            <p class="context-menu-name">💬 Ask</p>
-                            <p class="context-menu-desc">詢問與您的程式碼或專案相關的問題<br>Ask a question about your code or project</p>
-                            <p class="context-menu-use"><strong>問答模式：</strong>最常用的模式。用於詢問特定的語法問題、解釋現有的 SQL 邏輯，或針對當前專案內容進行快速諮詢。</p>
+                            <p class="context-menu-name">Claude 4.5 Sonnet</p>
+                            <p class="context-menu-desc">定位為平衡、快速且功能強大的模型。</p>
+                            <p class="context-menu-use">Sonnet 比 Opus 更快，因此常用於日常編碼任務，但與 GPT-5 相比，它在複雜的架構規劃方面可能略顯不足。</p>
                         </article>
                         <article class="context-menu-card">
-                            <p class="context-menu-name">📝 Plan</p>
-                            <p class="context-menu-desc">概述要研究的目標或問題<br>Outline the goal or problem to research</p>
-                            <p class="context-menu-use"><strong>規劃模式：</strong>適合在動手寫程式前使用。AI 會幫您梳理邏輯、分析潛在的架構問題，並列出研究或開發的步驟清單。</p>
-                        </article>
-                        <article class="context-menu-card">
-                            <p class="context-menu-name">⚙️ 自訂設定方案</p>
-                            <p class="context-menu-desc">自訂設定配置<br>Custom Configuration</p>
-                            <p class="context-menu-use"><strong>個性化模式：</strong>依照 TAITRA Data Team 的開發標準或個人習慣建立專屬模式。例如：設定 AI 優先使用特定的 Python 函式庫（如 Polars 而非 Pandas）。</p>
+                            <p class="context-menu-name">GPT-5</p>
+                            <p class="context-menu-desc">處理詳細的長篇文章邏輯，而且更具成本效益（每百萬個token約1.25美元，而Sonnet則超過3美元）。</p>
                         </article>
                     </div>
                 </div>
