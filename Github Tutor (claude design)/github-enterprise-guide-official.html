@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Enterprise 與 VS Code Copilot 使用指南</title>
+<style>
+    :root {
+        --primary-color: #1e3932;
+        --secondary-color: #00754a;
+        --secondary-strong: #006241;
+        --accent-soft: #8ac7b8;
+        --page-bg: #eef5f1;
+        --text-main: #22323a;
+        --text-light: #5f6f68;
+        --border-color: rgba(30, 57, 50, 0.12);
+        --shadow-soft: 0 18px 42px rgba(30, 57, 50, 0.09);
+        --shadow-strong: 0 28px 68px rgba(15, 42, 35, 0.18);
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+
+        main {
+            scroll-behavior: auto;
+        }
+
+        #progress-bar {
+            transition: none;
+        }
+    }
+
+    #progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 4px;
+        z-index: 9999;
+        background: linear-gradient(90deg, #1e3932 0%, #00754a 55%, #d4e9e2 100%);
+        transition: width 0.15s ease;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Aptos", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+        display: flex;
+        height: 100vh;
+        color: var(--text-main);
+        background:
+            radial-gradient(circle at top left, rgba(0, 117, 74, 0.14), transparent 22%),
+            radial-gradient(circle at 84% 18%, rgba(212, 233, 226, 0.24), transparent 20%),
+            linear-gradient(180deg, #f7fbf9 0%, var(--page-bg) 100%);
+    }
+
+    .hamburger {
+        display: none;
+        position: fixed;
+        top: 14px;
+        left: 14px;
+        z-index: 1001;
+        width: 42px;
+        height: 42px;
+        border: none;
+        border-radius: 10px;
+        background: rgba(16, 40, 47, 0.96);
+        box-shadow: 0 12px 24px rgba(12, 31, 38, 0.22);
+        cursor: pointer;
+        padding: 10px 8px;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .hamburger span {
+        display: block;
+        height: 2px;
+        border-radius: 999px;
+        background: #ffffff;
+        transition: 0.25s ease;
+    }
+
+    .hamburger.open span:nth-child(1) {
+        transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    .hamburger.open span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger.open span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(12, 31, 38, 0.5);
+        z-index: 1000;
+    }
+
+    .overlay.show {
+        display: block;
+    }
+
+    /* 左側選單配置 */
+    aside {
+        width: 260px;
+        background: linear-gradient(180deg, #21463b 0%, #16352d 52%, #0c221c 100%);
+        border-right: 1px solid rgba(212, 233, 226, 0.14);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100%;
+        overflow-y: auto;
+        box-shadow: 14px 0 34px rgba(12, 34, 28, 0.2);
+    }
+
+    .brand-header {
+        padding: 28px 20px;
+        background:
+            radial-gradient(circle at top, rgba(212, 233, 226, 0.18), transparent 42%),
+            linear-gradient(135deg, #2c5a4d 0%, #1e3932 58%, #0f2a23 100%);
+        color: #ffffff;
+        text-align: center;
+        border-bottom: 1px solid rgba(212, 233, 226, 0.16);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        cursor: pointer;
+    }
+
+    .brand-lockup {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 60px;
+        color: #ffffff;
+    }
+
+    .brand-icon {
+        width: 34px;
+        height: 34px;
+        display: block;
+        flex: 0 0 auto;
+        fill: currentColor;
+    }
+
+    .brand-icon.brand-icon-copilot {
+        width: 36px;
+        height: 36px;
+    }
+
+    .brand-divider {
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1;
+        color: #d4e9e2;
+        opacity: 1;
+    }
+
+    .brand-title {
+        margin: 0;
+        max-width: 196px;
+        color: rgba(244, 250, 247, 0.82);
+        font-size: 12px;
+        line-height: 1.45;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+    }
+
+    .sidebar-footer {
+        margin-top: auto;
+        padding: 16px 20px 22px;
+        border-top: 1px solid rgba(212, 233, 226, 0.14);
+        color: rgba(244, 250, 247, 0.58);
+        font-size: 11px;
+        line-height: 1.5;
+        text-align: left;
+    }
+
+    nav {
+        padding: 20px 0;
+    }
+
+    nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    nav li a {
+        display: block;
+        padding: 12px 24px;
+        color: rgba(244, 250, 247, 0.84);
+        text-decoration: none;
+        font-weight: 500;
+        transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+        border-left: 3px solid transparent;
+    }
+
+    nav li a:hover {
+        background: rgba(212, 233, 226, 0.08);
+        border-left-color: #d4e9e2;
+        color: #ffffff;
+        transform: translateX(2px);
+    }
+
+    nav li a.active {
+        background: rgba(212, 233, 226, 0.12);
+        border-left-color: #8ac7b8;
+        color: #ffffff;
+    }
+
+    /* 右側內容區配置 */
+    main {
+        flex: 1;
+        margin-left: 260px;
+        padding: 40px 60px;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+        scroll-padding-top: 18px;
+        overscroll-behavior-y: contain;
+        line-height: 1.6;
+    }
+
+    .hero-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.7fr) minmax(240px, 0.9fr);
+        gap: 22px;
+        align-items: end;
+    }
+
+    .page-hero {
+        background:
+            radial-gradient(circle at top right, rgba(212, 233, 226, 0.18), transparent 28%),
+            radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.08), transparent 26%),
+            linear-gradient(135deg, rgba(30, 57, 50, 0.98), rgba(0, 117, 74, 0.92));
+        border-radius: 24px;
+        padding: 36px 38px;
+        margin-bottom: 32px;
+        color: #f8fbff;
+        border: 1px solid rgba(212, 233, 226, 0.12);
+        box-shadow: var(--shadow-strong);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-hero::after {
+        content: "";
+        position: absolute;
+        right: -60px;
+        bottom: -80px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .hero-eyebrow {
+        display: inline-block;
+        margin-bottom: 14px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(212, 233, 226, 0.12);
+        border: 1px solid rgba(212, 233, 226, 0.2);
+        color: #f8fbff;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .page-hero h2 {
+        margin: 0 0 14px 0;
+        font-family: "Aptos Display", "Noto Serif TC", Georgia, serif;
+        font-size: 34px;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+    }
+
+    .page-hero p {
+        margin: 0;
+        max-width: 760px;
+        color: rgba(248, 251, 255, 0.84);
+        font-size: 17px;
+    }
+
+    .hero-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-pill {
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(212, 233, 226, 0.1);
+        border: 1px solid rgba(212, 233, 226, 0.14);
+        font-size: 13px;
+        color: #f8fbff;
+    }
+
+    .hero-panel {
+        position: relative;
+        z-index: 1;
+        padding: 18px 18px 16px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(212, 233, 226, 0.12), rgba(212, 233, 226, 0.06));
+        border: 1px solid rgba(212, 233, 226, 0.16);
+        backdrop-filter: blur(8px);
+    }
+
+    .hero-panel h3 {
+        margin: 0 0 10px 0;
+        font-family: "Aptos Display", "Noto Serif TC", Georgia, serif;
+        font-size: 18px;
+        color: #ffffff;
+    }
+
+    .hero-panel ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .hero-panel li {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(248, 251, 255, 0.12);
+        color: rgba(248, 251, 255, 0.84);
+        font-size: 14px;
+    }
+
+    .hero-panel li:last-child {
+        border-bottom: none;
+    }
+
+    .content-section {
+        margin-bottom: 28px;
+        padding: 34px 36px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 250, 247, 0.92));
+        backdrop-filter: blur(10px);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .content-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--secondary-color) 0%, var(--accent-soft) 55%, rgba(138, 199, 184, 0) 100%);
+    }
+
+    .content-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-intro {
+        font-size: 16px;
+        color: var(--text-light);
+        margin-bottom: 20px;
+        max-width: 760px;
+    }
+
+    h2.section-title {
+        color: var(--primary-color);
+        font-family: "Aptos Display", "Noto Serif TC", Georgia, serif;
+        font-size: 28px;
+        margin-top: 0;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding-bottom: 12px;
+    }
+
+    h2.section-title::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 78px;
+        height: 4px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--accent-soft), var(--secondary-color));
+    }
+
+    h3 {
+        color: var(--secondary-strong);
+        font-family: "Aptos Display", "Noto Serif TC", Georgia, serif;
+        font-size: 20px;
+        margin-top: 28px;
+    }
+
+    p {
+        margin: 0 0 16px 0;
+    }
+
+    ul.feature-list {
+        padding-left: 20px;
+    }
+
+    ul.feature-list.feature-card-list {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    ul.feature-list.feature-card-list li {
+        margin: 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 18px;
+        background: linear-gradient(180deg, #ffffff, #f6fbf8);
+        border: 1px solid rgba(30, 57, 50, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 12px 24px rgba(30, 57, 50, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    ul.feature-list.feature-card-list li:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 30px rgba(30, 57, 50, 0.08);
+    }
+
+    .feature-card-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(0, 117, 74, 0.12), rgba(212, 233, 226, 0.22));
+        color: var(--secondary-strong);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    .feature-card-icon svg {
+        width: 22px;
+        height: 22px;
+        display: block;
+        stroke: currentColor;
+    }
+
+    .feature-card-body {
+        min-width: 0;
+    }
+
+    .feature-card-body strong {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--primary-color);
+        font-size: 15px;
+    }
+
+    .feature-card-body span {
+        display: block;
+        color: var(--text-light);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    ul.feature-list li {
+        margin-bottom: 12px;
+    }
+
+    #setup > ol.feature-list {
+        list-style: none;
+        padding-left: 0;
+        counter-reset: setup-step;
+    }
+
+    #setup > ol.feature-list > li {
+        position: relative;
+        margin-bottom: 14px;
+        padding: 18px 18px 18px 62px;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #ffffff, #f6fbf8);
+        border: 1px solid rgba(30, 57, 50, 0.1);
+        box-shadow: 0 12px 26px rgba(30, 57, 50, 0.05);
+    }
+
+    #setup > ol.feature-list > li::before {
+        counter-increment: setup-step;
+        content: counter(setup-step);
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 10px 20px rgba(0, 117, 74, 0.22);
+    }
+
+    #setup > ol.feature-list > li > ul {
+        margin-top: 10px;
+        padding-left: 18px;
+    }
+
+    .highlight-box {
+        background: linear-gradient(135deg, rgba(0, 117, 74, 0.08), rgba(212, 233, 226, 0.78));
+        border: 1px solid rgba(0, 117, 74, 0.14);
+        border-left: 4px solid var(--secondary-color);
+        padding: 18px 20px;
+        border-radius: 16px;
+        margin: 20px 0;
+        box-shadow: 0 12px 28px rgba(30, 57, 50, 0.05);
+    }
+
+    .comparison-card {
+        margin-top: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(30, 57, 50, 0.1);
+        border-radius: 22px;
+        background: linear-gradient(180deg, #ffffff, #f6fbf8);
+        box-shadow: 0 18px 40px rgba(30, 57, 50, 0.08);
+    }
+
+    .comparison-scroll {
+        overflow-x: auto;
+    }
+
+    .comparison-table {
+        width: 100%;
+        min-width: 760px;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .comparison-table thead tr {
+        background: linear-gradient(90deg, #1e3932 0%, #00754a 58%, #2d8f6f 100%);
+        color: #ffffff;
+    }
+
+    .comparison-table thead th {
+        padding: 16px 24px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        vertical-align: top;
+    }
+
+    .comparison-subtitle {
+        display: inline-block;
+        margin-top: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-transform: none;
+        color: rgba(247, 250, 248, 0.88);
+    }
+
+    .comparison-table tbody tr {
+        border-top: 1px solid rgba(30, 57, 50, 0.08);
+    }
+
+    .comparison-table tbody tr:nth-child(even) {
+        background: rgba(212, 233, 226, 0.22);
+    }
+
+    .comparison-table tbody th,
+    .comparison-table tbody td {
+        padding: 20px 24px;
+        vertical-align: top;
+    }
+
+    .comparison-table tbody th {
+        width: 18%;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .comparison-cell {
+        font-size: 14px;
+        line-height: 1.7;
+        color: #526662;
+    }
+
+    .comparison-badge {
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+    }
+
+    .comparison-badge-free {
+        background: #f1f4f3;
+        color: #5f6f68;
+    }
+
+    .comparison-badge-enterprise {
+        background: #e6f4f1;
+        color: #006241;
+    }
+
+    code {
+        background-color: #edf7f3;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        font-size: 0.9em;
+        color: #006241;
+    }
+
+    pre {
+        background: linear-gradient(135deg, #162b26 0%, #21463b 100%);
+        color: #f7fafc;
+        padding: 18px 20px;
+        border-radius: 14px;
+        overflow-x: auto;
+        border: 1px solid rgba(212, 233, 226, 0.08);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 16px 28px rgba(12, 34, 28, 0.14);
+    }
+
+    pre code {
+        background-color: transparent;
+        color: inherit;
+        padding: 0;
+    }
+
+    .icon-container {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        background: linear-gradient(180deg, #ffffff, #f6fbf8);
+        padding: 18px 20px;
+        border-radius: 16px;
+        border: 1px solid rgba(30, 57, 50, 0.1);
+        box-shadow: 0 12px 24px rgba(30, 57, 50, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .icon-container:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 30px rgba(30, 57, 50, 0.08);
+    }
+
+    .context-menu-container > div {
+        width: 100%;
+    }
+
+    .context-menu-intro {
+        margin: 0 0 18px 0;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 117, 74, 0.14);
+        background: linear-gradient(135deg, rgba(0, 117, 74, 0.08), rgba(212, 233, 226, 0.68));
+        color: var(--text-main);
+        line-height: 1.7;
+    }
+
+    .context-menu-visual {
+        margin: 0 0 18px 0;
+        padding: 10px;
+        border-radius: 16px;
+        border: 1px solid rgba(30, 57, 50, 0.1);
+        background: linear-gradient(180deg, #ffffff, #f7fbf9);
+        box-shadow: 0 12px 24px rgba(30, 57, 50, 0.05);
+    }
+
+    .context-menu-visual img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+    }
+
+    .context-menu-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .context-menu-card {
+        padding: 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(30, 57, 50, 0.1);
+        background: linear-gradient(180deg, #ffffff, #f8fcfa);
+        box-shadow: 0 10px 22px rgba(30, 57, 50, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .context-menu-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 28px rgba(30, 57, 50, 0.08);
+    }
+
+    .context-menu-name {
+        margin: 0 0 10px 0;
+        color: var(--primary-color);
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+    .context-menu-desc {
+        margin: 0 0 10px 0;
+        color: var(--text-main);
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .context-menu-use {
+        margin: 0;
+        color: var(--text-light);
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .context-menu-use strong {
+        color: var(--secondary-strong);
+    }
+
+    .mode-list {
+        margin: 0;
+        padding-left: 22px;
+        color: var(--text-main);
+    }
+
+    .mode-list li {
+        margin-bottom: 12px;
+        line-height: 1.7;
+    }
+
+    .mode-list li:last-child {
+        margin-bottom: 0;
+    }
+
+    .mode-list strong {
+        color: var(--secondary-strong);
+    }
+
+    .icon-title {
+        font-weight: bold;
+        color: var(--primary-color);
+        font-family: "Aptos Display", "Noto Serif TC", Georgia, serif;
+        margin-bottom: 5px;
+    }
+
+    .setup-flow-grid {
+        display: grid;
+        gap: 18px;
+        margin-top: 18px;
+    }
+
+    .setup-flow-step {
+        position: relative;
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 18px;
+        margin: 0;
+        align-items: start;
+    }
+
+    .setup-flow-step::after {
+        content: "";
+        position: absolute;
+        left: 35px;
+        top: 72px;
+        bottom: -18px;
+        width: 2px;
+        background: linear-gradient(180deg, rgba(0, 117, 74, 0.3), rgba(138, 199, 184, 0.12));
+    }
+
+    .setup-flow-step:last-child::after {
+        display: none;
+    }
+
+    .setup-flow-index {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 2px;
+    }
+
+    .setup-flow-card {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(260px, 1.1fr);
+        gap: 18px;
+        min-width: 0;
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(30, 57, 50, 0.1);
+        background: linear-gradient(180deg, #ffffff, #f8fcfa);
+        box-shadow: 0 10px 22px rgba(30, 57, 50, 0.05);
+    }
+
+    .setup-flow-copy {
+        min-width: 0;
+        align-self: center;
+    }
+
+    .setup-flow-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        box-shadow: 0 10px 20px rgba(0, 117, 74, 0.22);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+    }
+
+    .setup-flow-title {
+        margin: 0 0 8px 0;
+        color: var(--primary-color);
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+    .setup-flow-desc {
+        margin: 0;
+        color: var(--text-light);
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .setup-flow-image-frame {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid rgba(30, 57, 50, 0.08);
+        background: #eef5f1;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .setup-flow-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+        background: #ffffff;
+    }
+
+    .setup-flow-image.is-step-3 {
+        object-position: center center;
+    }
+
+    @media (max-width: 900px) {
+        body {
+            display: block;
+            height: auto;
+            overflow-y: auto;
+        }
+
+        main {
+            margin-left: 0;
+            padding: 28px 20px;
+            overflow-y: visible;
+            overscroll-behavior-y: auto;
+        }
+
+        .page-hero {
+            padding: 28px 22px;
+            border-radius: 20px;
+        }
+
+        .hero-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .page-hero h2 {
+            font-size: 28px;
+        }
+
+        .context-menu-grid,
+        ul.feature-list.feature-card-list {
+            grid-template-columns: 1fr;
+        }
+
+        .setup-flow-grid {
+            gap: 12px;
+        }
+
+        .setup-flow-step {
+            grid-template-columns: 56px minmax(0, 1fr);
+        }
+
+        .setup-flow-step::after {
+            left: 27px;
+            top: 62px;
+            bottom: -12px;
+        }
+
+        .setup-flow-card {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .setup-flow-badge {
+            width: 44px;
+            height: 44px;
+            font-size: 13px;
+        }
+
+        .setup-flow-image-frame {
+            aspect-ratio: 5 / 4;
+        }
+
+        .content-section {
+            padding: 26px 22px;
+            border-radius: 18px;
+        }
+
+        .hamburger {
+            display: flex;
+        }
+
+        aside {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100%;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1002;
+        }
+
+        aside.open {
+            transform: translateX(0);
+        }
+    }
+</style>
+</head>
+<body>
+
+    <div id="progress-bar"></div>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="overlay" id="overlay"></div>
+
+    <aside id="sidebar">
+        <div class="brand-header" id="brand-header" role="link" tabindex="0" aria-label="回到頁面頂部摘要區塊">
+            <div class="brand-lockup" aria-label="GitHub x Copilot">
+                <svg class="brand-icon" viewBox="0 0 16 16" aria-label="GitHub" role="img">
+                    <path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.031 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656" />
+                </svg>
+                <span class="brand-divider" aria-hidden="true">x</span>
+                <svg class="brand-icon brand-icon-copilot" viewBox="0 0 16 16" aria-label="GitHub Copilot" role="img">
+                    <path d="M7.998 15.035c-4.562 0-7.873-2.914-7.998-3.749V9.338c.085-.628.677-1.686 1.588-2.065.013-.07.024-.143.036-.218.029-.183.06-.384.126-.612-.201-.508-.254-1.084-.254-1.656 0-.87.128-1.769.693-2.484.579-.733 1.494-1.124 2.724-1.261 1.206-.134 2.262.034 2.944.765.05.053.096.108.139.165.044-.057.094-.112.143-.165.682-.731 1.738-.899 2.944-.765 1.23.137 2.145.528 2.724 1.261.566.715.693 1.614.693 2.484 0 .572-.053 1.148-.254 1.656.066.228.098.429.126.612.012.076.024.148.037.218.924.385 1.522 1.471 1.591 2.095v1.872c0 .766-3.351 3.795-8.002 3.795Zm0-1.485c2.28 0 4.584-1.11 5.002-1.433V7.862l-.023-.116c-.49.21-1.075.291-1.727.291-1.146 0-2.059-.327-2.71-.991A3.222 3.222 0 0 1 8 6.303a3.24 3.24 0 0 1-.544.743c-.65.664-1.563.991-2.71.991-.652 0-1.236-.081-1.727-.291l-.023.116v4.255c.419.323 2.722 1.433 5.002 1.433ZM6.762 2.83c-.193-.206-.637-.413-1.682-.297-1.019.113-1.479.404-1.713.7-.247.312-.369.789-.369 1.554 0 .793.129 1.171.308 1.371.162.181.519.379 1.442.379.853 0 1.339-.235 1.638-.54.315-.322.527-.827.617-1.553.117-.935-.037-1.395-.241-1.614Zm4.155-.297c-1.044-.116-1.488.091-1.681.297-.204.219-.359.679-.242 1.614.091.726.303 1.231.618 1.553.299.305.784.54 1.638.54.922 0 1.28-.198 1.442-.379.179-.2.308-.578.308-1.371 0-.765-.123-1.242-.37-1.554-.233-.296-.693-.587-1.713-.7Z" />
+                    <path d="M6.25 9.037a.75.75 0 0 1 .75.75v1.501a.75.75 0 0 1-1.5 0V9.787a.75.75 0 0 1 .75-.75Zm4.25.75v1.501a.75.75 0 0 1-1.5 0V9.787a.75.75 0 0 1 1.5 0Z" />
+                </svg>
+            </div>
+            <p class="brand-title">GitHub Enterprise x Copilot Beginner Guide</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#intro">什麼是GitHub Enterprise</a></li>
+                <li><a href="#specs">產品規格</a></li>
+                <li><a href="#setup">初次使用</a></li>
+                <li><a href="#features">VS Code 圖標功能介紹</a></li>
+                <li><a href="#syntax">基本語法</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">GitHub Enterprise x Copilot Beginner Guide &copy; 2026</div>
+    </aside>
+
+    <main>
+        <section id="overview" class="page-hero" aria-label="Guide Overview">
+            <div class="hero-layout">
+                <div>
+                    <div class="hero-eyebrow">TAITRA Data Team</div>
+                    <h2>GitHub Enterprise 與 VS Code Copilot 快速上手</h2>
+                    <p>完成企業帳號登入、Copilot 啟用、常用圖標辨識，以及日常開發中常用的 Pull 與 Push 操作。</p>
+                    <div class="hero-pills">
+                        <span class="hero-pill">GitHub Enterprise</span>
+                        <span class="hero-pill">VS Code</span>
+                        <span class="hero-pill">Copilot</span>
+                    </div>
+                </div>
+                <div class="hero-panel">
+                    <h3>本頁重點</h3>
+                    <ul>
+                        <li>認識 GitHub Enterprise 與免費版差異</li>
+                        <li>完成 GitHub Enterprise 與 Copilot 登入設定</li>
+                        <li>掌握 Pull 與 Push 的基本操作</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="intro" class="content-section">
+            <h2 class="section-title">什麼是GitHub Enterprise?</h2>
+            <p>GitHub Enterprise 是企業版的程式碼代管與協作平台。對 Data Team 而言，它不只是存放程式碼的地方，也是日常開發、協作與版本控管的核心工作平台。</p>
+            <ul class="feature-list feature-card-list">
+                <li>
+                    <span class="feature-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 5v8" />
+                            <path d="M18 11V7" />
+                            <path d="M12 13v6" />
+                            <circle cx="6" cy="4" r="2" />
+                            <circle cx="18" cy="6" r="2" />
+                            <circle cx="12" cy="20" r="2" />
+                            <path d="M8 5.5 16 6.5" />
+                            <path d="M7 13.5 11 18" />
+                        </svg>
+                    </span>
+                    <div class="feature-card-body">
+                        <strong>集中化版本控制</strong>
+                        <span>安全儲存與管理 ETL 腳本、資料處理流程、分析工具與專案設定檔。</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="8" cy="8" r="3" />
+                            <circle cx="17" cy="9" r="2.5" />
+                            <path d="M3.5 18a4.5 4.5 0 0 1 9 0" />
+                            <path d="M13.5 18a3.8 3.8 0 0 1 7 0" />
+                        </svg>
+                    </span>
+                    <div class="feature-card-body">
+                        <strong>團隊協作與審查</strong>
+                        <span>透過 Pull Request、Review 與 Issue 管理，讓多人協作更有秩序。</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3 5.5 6v5.5c0 4.2 2.6 7.6 6.5 9.5 3.9-1.9 6.5-5.3 6.5-9.5V6L12 3Z" />
+                            <path d="M9.5 11.5V10a2.5 2.5 0 1 1 5 0v1.5" />
+                            <rect x="8.5" y="11.5" width="7" height="5.5" rx="1.5" />
+                        </svg>
+                    </span>
+                    <div class="feature-card-body">
+                        <strong>權限與組織治理</strong>
+                        <span>可搭配 SSO 與組織權限控管，避免未授權人員存取專案內容。</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 4 5 8l4 4" />
+                            <path d="M15 20l4-4-4-4" />
+                            <path d="M19 8h-7a3 3 0 0 0-3 3v1" />
+                            <path d="M5 16h7a3 3 0 0 0 3-3v-1" />
+                        </svg>
+                    </span>
+                    <div class="feature-card-body">
+                        <strong>自動化流程</strong>
+                        <span>可利用 GitHub Actions 建立測試、部署與排程化的工作流程。</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 21c-4.8 0-8.2-3-8.5-3.9v-2.1c.1-.7.8-1.8 1.8-2.2.1-.4.2-.8.4-1.3-.2-.5-.3-1.1-.3-1.7 0-.9.2-1.9.8-2.6.7-.8 1.8-1.2 3.2-1.3 1.3-.1 2.4.1 3.1.8.8-.7 1.8-.9 3.1-.8 1.4.1 2.5.5 3.2 1.3.6.7.8 1.7.8 2.6 0 .6-.1 1.2-.3 1.7.2.5.3.9.4 1.3 1 .4 1.7 1.5 1.8 2.2v2.1C20.2 17.9 16.8 21 12 21Z" />
+                            <path d="M9.5 12.5v2" />
+                            <path d="M14.5 12.5v2" />
+                            <path d="M8.8 8.7c.6.7 1.5 1 3.2 1 1.7 0 2.6-.3 3.2-1" />
+                        </svg>
+                    </span>
+                    <div class="feature-card-body">
+                        <strong>Copilot 輔助開發</strong>
+                        <span>在企業授權環境中，於 VS Code 中取得程式碼補全與對話式協助。</span>
+                    </div>
+                </li>
+            </ul>
+
+            <h3>GitHub Enterprise 與免費版的差異</h3>
+            <div class="comparison-card">
+                <div class="comparison-scroll">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>功能項目<br><span class="comparison-subtitle">Feature</span></th>
+                                <th>免費版<br><span class="comparison-subtitle">Free</span></th>
+                                <th>企業版<br><span class="comparison-subtitle">Enterprise</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">權限控管</th>
+                                <td class="comparison-cell">
+                                    <span class="comparison-badge comparison-badge-free">基礎權限</span>
+                                    <div>以個人帳號與單一儲存庫協作者設定為主，提供較基礎的權限管理。</div>
+                                </td>
+                                <td class="comparison-cell">
+                                    <span class="comparison-badge comparison-badge-enterprise">組織治理</span>
+                                    <div>可依團隊、專案與職責細緻分配讀寫權限，管理方式更完整。</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">登入機制</th>
+                                <td class="comparison-cell">
+                                    <span class="comparison-badge comparison-badge-free">個人登入</span>
+                                    <div>通常以個人 GitHub 帳號登入為主，帳號與組織授權多半分開管理。</div>
+                                </td>
+                                <td class="comparison-cell">
+                                    <span class="comparison-badge comparison-badge-enterprise">SSO / 組織授權</span>
+                                    <div>可搭配公司 SSO 或組織授權流程，登入與權限管理更集中一致。</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">資料保護</th>
+                                <td class="comparison-cell">
+                                    <span class="comparison-badge comparison-badge-free">標準保護</span>
+                                    <div>提供一般公開或私人儲存庫保護機制，較適合個人或小型協作情境。</div>
+                                </td>
+                                <td class="comparison-cell">
+                                    <span class="comparison-badge comparison-badge-enterprise">企業級控管</span>
+                                    <div>更能配合公司資安政策、內部開發資產保護與稽核需求。</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Copilot 使用</th>
+                                <td class="comparison-cell">
+                                    <span class="comparison-badge comparison-badge-free">個人方案導向</span>
+                                    <div>多以個人帳號或個人訂閱方式使用，較少組織層級的統一控管。</div>
+                                </td>
+                                <td class="comparison-cell">
+                                    <span class="comparison-badge comparison-badge-enterprise">授權與政策整合</span>
+                                    <div>可配合組織層級的授權設定與使用政策，較適合企業環境導入與管理。</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="specs" class="content-section">
+            <h2 class="section-title">產品規格</h2>
+            <p class="section-intro">以下整理 Copilot Enterprise 目前常用的授權與配額資訊，方便快速查閱。</p>
+            <div class="comparison-card">
+                <div class="comparison-scroll">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>產品名稱</th>
+                                <th>Copilot Enterprise</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">價格</th>
+                                <td>每個已授權席次每月 39 美元</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Premium Requests 配額</th>
+                                <td>每位使用者每月 1000 次</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">更新時間</th>
+                                <td>每月 1 日更新</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="setup" class="content-section">
+            <h2 class="section-title">初次使用：連接 GitHub Enterprise 與 VS Code Copilot</h2>
+            <p class="section-intro">第一次使用時，建議先完成帳號登入、組織授權與 Copilot 狀態確認，再開始開發工作。</p>
+            
+            <ol class="feature-list">
+                <li><strong>安裝擴充套件</strong>：開啟 VS Code，進入左側「Extensions (擴充功能)」，搜尋並安裝 <code>GitHub Copilot</code> 與 <code>GitHub Copilot Chat</code>。</li>
+                <li><strong>登入公司核發的 GitHub 帳號</strong>：
+                    <ul>
+                        <li>點擊 VS Code 左下角的「帳戶 (Accounts)」圖示。</li>
+                        <li>依公司使用情境選擇登入 GitHub 或 GitHub Enterprise 的選項，並使用已核發的帳號完成登入。</li>
+                    </ul>
+                </li>
+                <li><strong>完成組織授權或 SSO 驗證</strong>：瀏覽器開啟後，請依公司要求完成登入、授權或單一登入驗證。</li>
+                <li><strong>若系統要求輸入 Enterprise 網址</strong>：請填入組內提供的 GitHub Enterprise 網址或 Server URI，並以實際配發資訊為準。</li>
+                <li><strong>確認 Copilot 狀態</strong>：驗證成功後，VS Code 右下角會顯示 Copilot 圖示，且不應出現停用或授權失敗的狀態。</li>
+                <li><strong>進行簡單測試</strong>：開啟任一程式檔案，輸入幾行註解或函式名稱，確認Copilot是否順利產生回應。</li>
+            </ol>
+
+            <div class="highlight-box">
+                <p><strong>建議：</strong>若已成功登入，但看不到 Copilot 建議或對話功能，通常可先嘗試重新整理 VS Code 視窗，或重新登入帳號以同步授權狀態。</p>
+            </div>
+
+            <h3>登入流程參考</h3>
+            <div class="setup-flow-grid">
+                <figure class="setup-flow-step">
+                    <div class="setup-flow-index" aria-hidden="true">
+                        <div class="setup-flow-badge">01</div>
+                    </div>
+                    <div class="setup-flow-card">
+                        <figcaption class="setup-flow-copy">
+                            <p class="setup-flow-title">開啟登入選單</p>
+                            <p class="setup-flow-desc">從 VS Code 左下角的帳戶區域或登入提示進入 GitHub 相關登入流程，作為整個連線設定的起點。</p>
+                        </figcaption>
+                        <div class="setup-flow-image-frame">
+                            <img class="setup-flow-image is-step-1" src="login prosess/登入位置2.png" alt="登入流程圖步驟 1：開啟登入選單">
+                        </div>
+                    </div>
+                </figure>
+                <figure class="setup-flow-step">
+                    <div class="setup-flow-index" aria-hidden="true">
+                        <div class="setup-flow-badge">02</div>
+                    </div>
+                    <div class="setup-flow-card">
+                        <figcaption class="setup-flow-copy">
+                            <p class="setup-flow-title">完成登入與授權</p>
+                            <p class="setup-flow-desc">依照公司使用情境選擇正確的登入方式，並在跳出的授權頁面中完成帳號驗證、組織授權或 SSO 流程。</p>
+                        </figcaption>
+                        <div class="setup-flow-image-frame">
+                            <img class="setup-flow-image is-step-2" src="login prosess/登入位置3.png" alt="登入流程圖步驟 2：完成登入與授權">
+                        </div>
+                    </div>
+                </figure>
+                <figure class="setup-flow-step">
+                    <div class="setup-flow-index" aria-hidden="true">
+                        <div class="setup-flow-badge">03</div>
+                    </div>
+                    <div class="setup-flow-card">
+                        <figcaption class="setup-flow-copy">
+                            <p class="setup-flow-title">返回 VS Code 確認完成</p>
+                            <p class="setup-flow-desc">完成授權後返回 VS Code，確認登入狀態已同步成功，並檢查 Copilot 是否能正常回應與提供建議。</p>
+                        </figcaption>
+                        <div class="setup-flow-image-frame">
+                            <img class="setup-flow-image is-step-3" src="login prosess/登入位置4.png" alt="登入流程圖步驟 3：返回 VS Code 確認完成">
+                        </div>
+                    </div>
+                </figure>
+            </div>
+        </section>
+
+        <section id="features" class="content-section">
+            <h2 class="section-title">功能介紹</h2>
+            <p class="section-intro">在 VS Code 中，GitHub 與 Copilot 的日常操作通常會集中在以下三個圖標與區域。</p>
+
+            <div class="icon-container context-menu-container">
+                <div>
+                    <div class="icon-title">Copilot 「+」選單教學</div>
+                    <p class="context-menu-intro">當您點擊對話框旁的「+」圖標時，您可以手動指定 Copilot 參考特定的資訊來源（Attachments），這能有效避免 AI 產生幻覺或給出不相關的建議。<br>以下是選單中各項功能的詳細說明：</p>
+                    <div class="context-menu-grid">
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">📄 Open Editors</p>
+                            <p class="context-menu-desc">讓 AI 參考目前您已經開啟的所有分頁檔案。</p>
+                            <p class="context-menu-use"><strong>適用情境：</strong>當您正在進行多檔案開發，且各檔案間有邏輯關連時使用。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">📁 Files &amp; Folders...</p>
+                            <p class="context-menu-desc">從整個專案資料夾中，指定特定的檔案或資料夾作為參考。</p>
+                            <p class="context-menu-use"><strong>適用情境：</strong>當您需要 AI 讀取尚未開啟的數據定義檔 (Schema) 或設定檔時。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">🔖 Instructions...</p>
+                            <p class="context-menu-desc">讓 AI 參考特定的自訂指令文件。</p>
+                            <p class="context-menu-use"><strong>適用情境：</strong>當團隊有統一的 Coding Style 或資料處理規範文件時。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">🔀 Source Control...</p>
+                            <p class="context-menu-desc">參考目前的 Git 變更狀態或 Diff 內容。</p>
+                            <p class="context-menu-use"><strong>適用情境：</strong>當您想請 AI 幫忙寫 Commit Message，或檢查剛改動的程式碼有無漏洞時。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">❌ Problems...</p>
+                            <p class="context-menu-desc">將 VS Code 偵測到的語法錯誤或警告 (Errors/Warnings) 餵給 AI。</p>
+                            <p class="context-menu-use"><strong>適用情境：</strong>快速 Debug：直接讓 AI 看到底層報錯訊息並尋求解決方案。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">📦 Symbols...</p>
+                            <p class="context-menu-desc">搜尋並參考專案中的特定變數、函式或類別 (Classes)。</p>
+                            <p class="context-menu-use"><strong>適用情境：</strong>當專案很大，您只想針對某個特定函式的邏輯進行優化時。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">💬 Sessions...</p>
+                            <p class="context-menu-desc">參考過往的對話紀錄。</p>
+                            <p class="context-menu-use"><strong>適用情境：</strong>需要延續之前的討論主題，或從之前的解法中延伸新功能時。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">🛠️ Tools...</p>
+                            <p class="context-menu-desc">允許 Copilot 使用外部輔助工具（如 Terminal 執行結果）。</p>
+                            <p class="context-menu-use"><strong>適用情境：</strong>當需要 AI 根據執行環境的輸出結果進行分析時。</p>
+                        </article>
+                    </div>
+                </div>
+            </div>
+
+            <div class="icon-container context-menu-container">
+                <div>
+                    <div class="icon-title">Copilot對話模式選擇教學</div>
+                    <p class="context-menu-intro">模式選單可協助您依照當前需求切換不同的互動方式。以下為常見模式與其對應用途：</p>
+                    <figure class="context-menu-visual">
+                        <img src="對話模式選單.png" alt="Copilot 對話模式選單示意圖">
+                    </figure>
+                    <div class="context-menu-grid">
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">🤖 Agent</p>
+                            <p class="context-menu-desc">描述要建置的內容<br>Describe what to build</p>
+                            <p class="context-menu-use"><strong>執行模式：</strong>當您有明確的開發目標（例如：建立一個新的數據清洗腳本）時使用。AI 會嘗試生成完整的代碼結構或文件。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">💬 Ask</p>
+                            <p class="context-menu-desc">詢問與您的程式碼或專案相關的問題<br>Ask a question about your code or project</p>
+                            <p class="context-menu-use"><strong>問答模式：</strong>最常用的模式。用於詢問特定的語法問題、解釋現有的 SQL 邏輯，或針對當前專案內容進行快速諮詢。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">📝 Plan</p>
+                            <p class="context-menu-desc">概述要研究的目標或問題<br>Outline the goal or problem to research</p>
+                            <p class="context-menu-use"><strong>規劃模式：</strong>適合在動手寫程式前使用。AI 會幫您梳理邏輯、分析潛在的架構問題，並列出研究或開發的步驟清單。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">⚙️ 自訂設定方案</p>
+                            <p class="context-menu-desc">自訂設定配置<br>Custom Configuration</p>
+                            <p class="context-menu-use"><strong>個性化模式：</strong>依照 TAITRA Data Team 的開發標準或個人習慣建立專屬模式。例如：設定 AI 優先使用特定的 Python 函式庫（如 Polars 而非 Pandas）。</p>
+                        </article>
+                    </div>
+                </div>
+            </div>
+
+            <div class="icon-container context-menu-container">
+                <div>
+                    <div class="icon-title">LLM模型選擇</div>
+                    <p class="context-menu-intro">您可依照當前需求切換至不同的LLM模型。以下為copilot主要LLM模型與其對應用途：</p>
+                    <figure class="context-menu-visual">
+                        <img src="LLM模型選單.png" alt="Copilot LLM 模型選單示意圖">
+                    </figure>
+                    <div class="context-menu-grid">
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">Claude 4.6 Opus</p>
+                            <p class="context-menu-desc">擅長產生高品質的前端程式碼、UI/UX設計。</p>
+                            <p class="context-menu-use">在處理複雜的多輪對話方面也具有極高的可靠性。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">Claude 4.5 Sonnet</p>
+                            <p class="context-menu-desc">定位為平衡、快速且功能強大的模型。</p>
+                            <p class="context-menu-use">Sonnet 比 Opus 更快，因此常用於日常編碼任務，但與 GPT-5 相比，它在複雜的架構規劃方面可能略顯不足。</p>
+                        </article>
+                        <article class="context-menu-card">
+                            <p class="context-menu-name">GPT-5</p>
+                            <p class="context-menu-desc">處理詳細的長篇文章邏輯，而且更具成本效益（每百萬個token約1.25美元，而Sonnet則超過3美元）。</p>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="syntax" class="content-section">
+            <h2 class="section-title">基本語法：Push 與 Pull</h2>
+            <p class="section-intro">對團隊協作而言，最常用的 Git 操作通常是 Pull 與 Push。理解這兩個動作，有助於避免版本衝突並保持專案同步。</p>
+
+            <div class="context-menu-grid">
+                <article class="context-menu-card">
+                    <p class="context-menu-name">Pull (拉取)</p>
+                    <p class="context-menu-desc"><strong>定義：</strong>將 GitHub Enterprise 遠端儲存庫 (Remote Repository) 中最新的程式碼與變更，下載並合併到您本機的開發環境中。</p>
+                    <p class="context-menu-use"><strong>使用時機：</strong>建議在每天開始工作前，或在準備修改共用檔案前先執行 Pull，以降低與其他同仁衝突的機率。</p>
+                    <pre><code>git pull origin main</code></pre>
+                    <p class="context-menu-use"><strong>註：</strong>實際分支名稱不一定是 <code>main</code>，請依專案使用的預設分支為準。</p>
+                </article>
+
+                <article class="context-menu-card">
+                    <p class="context-menu-name">Push (推送)</p>
+                    <p class="context-menu-desc"><strong>定義：</strong>將您本機端已經 Commit (提交) 的變更，上傳至 GitHub Enterprise 的遠端儲存庫。</p>
+                    <p class="context-menu-use"><strong>使用時機：</strong>當您完成一段可驗證的修改，並已於本機測試與 Commit 後，即可 Push 到遠端儲存庫與團隊共享。</p>
+                    <pre><code>git push origin main</code></pre>
+                    <p class="context-menu-use"><strong>註：</strong>在 VS Code 中，完成 Commit 後，通常可透過 "Sync Changes" 一併完成 Push 與同步動作。</p>
+                </article>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>實務建議：</strong>開始工作前先 Pull；完成一段明確修改後先 Commit，再 Push。這樣較容易追蹤版本，也方便同仁閱讀與回溯變更內容。</p>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            var mainContent = document.querySelector('main');
+            var progressBar = document.getElementById('progress-bar');
+            var navLinks = document.querySelectorAll('nav li a');
+            var sections = document.querySelectorAll('.content-section');
+            var brandHeader = document.getElementById('brand-header');
+            var overviewSection = document.getElementById('overview');
+            var hamburger = document.getElementById('hamburger');
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('overlay');
+            var reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+            function useMainScroll() {
+                return window.innerWidth > 900;
+            }
+
+            function getScrollMetrics() {
+                if (useMainScroll()) {
+                    return {
+                        top: mainContent.scrollTop,
+                        max: Math.max(mainContent.scrollHeight - mainContent.clientHeight, 0)
+                    };
+                }
+
+                return {
+                    top: window.scrollY || document.documentElement.scrollTop || 0,
+                    max: Math.max(document.documentElement.scrollHeight - window.innerHeight, 0)
+                };
+            }
+
+            function updateProgress() {
+                var metrics = getScrollMetrics();
+                var progress = metrics.max > 0 ? (metrics.top / metrics.max) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            }
+
+            function toggleMenu() {
+                hamburger.classList.toggle('open');
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('show');
+            }
+
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        var id = entry.target.id;
+                        navLinks.forEach(function (link) {
+                            link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+                        });
+                    }
+                });
+            }, { rootMargin: '-20% 0px -65% 0px' });
+
+            sections.forEach(function (section) {
+                observer.observe(section);
+            });
+
+            navLinks.forEach(function (link) {
+                link.addEventListener('click', function (event) {
+                    var targetId = link.getAttribute('href');
+                    var targetSection = targetId ? document.querySelector(targetId) : null;
+
+                    if (targetSection) {
+                        event.preventDefault();
+                        targetSection.scrollIntoView({
+                            behavior: reduceMotionQuery.matches ? 'auto' : 'smooth',
+                            block: 'start'
+                        });
+                    }
+
+                    if (window.innerWidth <= 900 && sidebar.classList.contains('open')) {
+                        toggleMenu();
+                    }
+                });
+            });
+
+            if (brandHeader && overviewSection) {
+                function scrollToOverview() {
+                    overviewSection.scrollIntoView({
+                        behavior: reduceMotionQuery.matches ? 'auto' : 'smooth',
+                        block: 'start'
+                    });
+
+                    if (window.innerWidth <= 900 && sidebar.classList.contains('open')) {
+                        toggleMenu();
+                    }
+                }
+
+                brandHeader.addEventListener('click', scrollToOverview);
+                brandHeader.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        scrollToOverview();
+                    }
+                });
+            }
+
+            hamburger.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+            mainContent.addEventListener('scroll', updateProgress, { passive: true });
+            window.addEventListener('scroll', updateProgress, { passive: true });
+            window.addEventListener('resize', updateProgress, { passive: true });
+            updateProgress();
+        })();
+    </script>
+
+</body>
+</html>
