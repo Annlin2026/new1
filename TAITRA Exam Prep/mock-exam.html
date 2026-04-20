@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>貿協數據分析B組 - 模擬考測驗</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f111a;
+            --bg-secondary: #1a1d2d;
+            --bg-tertiary: #252a40;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --border-color: #2e344e;
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-nav {
+            margin-top: 20px;
+        }
+
+        .btn-back {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            background: var(--border-color);
+        }
+
+        .exam-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-badge {
+            font-size: 0.9rem;
+            background: var(--bg-tertiary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: var(--text-secondary);
+        }
+
+        .question-card {
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-label:hover {
+            border-color: var(--accent-primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .option-input {
+            margin-top: 4px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .option-text {
+            flex-grow: 1;
+        }
+
+        /* 批改後的樣式 */
+        .option-label.correct {
+            background-color: var(--success-bg);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .option-label.incorrect {
+            background-color: var(--danger-bg);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 12px 16px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0 60px;
+        }
+
+        .btn-submit {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-submit:disabled {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-panel {
+            display: none;
+            text-align: center;
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 40px;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-primary) 0%, var(--bg-tertiary) 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: "";
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            background-color: var(--bg-secondary);
+            border-radius: 50%;
+        }
+
+        .score-text {
+            position: relative;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .score-desc {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .score-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            text-align: left;
+        }
+
+        .detail-item {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-title {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .detail-score {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>貿協數據分析B組 - 模擬考測驗</h1>
+        <p>總共 25 題，測試妳的考前吸收程度！</p>
+        <div class="header-nav">
+            <a href="study-guide.html" class="btn-back">⬅️ 回到教材指南</a>
+        </div>
+    </header>
+
+    <div class="result-panel" id="resultPanel">
+        <h2 style="margin-bottom: 20px;">測驗結果</h2>
+        <div class="score-circle" id="scoreCircle">
+            <div class="score-text" id="totalScore">0</div>
+        </div>
+        <p class="score-desc" id="scoreDesc">繼續努力！</p>
+        
+        <div class="score-details" id="scoreDetails">
+            <!-- 動態生成各科分數 -->
+        </div>
+        
+        <button class="btn-back" style="margin-top: 30px; display: inline-block;" onclick="window.scrollTo(0, document.body.scrollHeight/3)">⬇️ 查看錯題解析</button>
+    </div>
+
+    <form id="examForm">
+        <div id="questionsContainer">
+            <!-- 題目由 JavaScript 動態生成 -->
+        </div>
+
+        <div class="actions">
+            <button type="button" class="btn-submit" id="submitBtn" onclick="gradeExam()">交卷看成績 📝</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // 考試題庫定義
+    const examData = [
+        {
+            section: "SQL 資料庫查詢語言",
+            weight: 30,
+            questions: [
+                {
+                    q: "在 SQL 中，哪一個指令用來刪除整個資料表及其結構？",
+                    options: ["DELETE", "TRUNCATE", "DROP", "REMOVE"],
+                    answer: 2,
+                    exp: "DROP 會刪除整張表包含結構；TRUNCATE 是清空資料但保留結構；DELETE 是刪除特定列的資料。"
+                },
+                {
+                    q: "SQL 的查詢語句中，執行順序的第一步通常是哪一個？",
+                    options: ["SELECT", "FROM", "WHERE", "GROUP BY"],
+                    answer: 1,
+                    exp: "執行順序為：FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT。"
+                },
+                {
+                    q: "下列哪一種 JOIN 會保留左邊資料表的所有紀錄，即使右邊沒有匹配的資料？",
+                    options: ["INNER JOIN", "LEFT JOIN", "RIGHT JOIN", "FULL JOIN"],
+                    answer: 1,
+                    exp: "LEFT JOIN（左外部連接）會保留左表所有資料，若右表無匹配則顯示 NULL。"
+                },
+                {
+                    q: "用來過濾 GROUP BY 分組後結果的關鍵字是？",
+                    options: ["WHERE", "HAVING", "ORDER BY", "FILTER"],
+                    answer: 1,
+                    exp: "WHERE 是在分組前過濾原始資料，HAVING 是在分組後過濾聚合結果。"
+                },
+                {
+                    q: "交易控制（TCL）的 ACID 特性中，代表「交易要嘛全成功、要嘛全失敗」的是？",
+                    options: ["Atomicity (原子性)", "Consistency (一致性)", "Isolation (隔離性)", "Durability (持久性)"],
+                    answer: 0,
+                    exp: "Atomicity（原子性）確保交易不可分割，就像原子一樣，全做或全不做。"
+                }
+            ]
+        },
+        {
+            section: "大數據基本概要",
+            weight: 20,
+            questions: [
+                {
+                    q: "下列何者不屬於大數據的 5V 特性？",
+                    options: ["Volume (量大)", "Velocity (速快)", "Visibility (可視化)", "Variety (多樣)"],
+                    answer: 2,
+                    exp: "5V 分別是 Volume(量大)、Velocity(速快)、Variety(多樣)、Veracity(真實)、Value(價值)。"
+                },
+                {
+                    q: "在 Hadoop 生態系中，負責「分散式儲存檔案」的核心元件是？",
+                    options: ["MapReduce", "YARN", "Hive", "HDFS"],
+                    answer: 3,
+                    exp: "HDFS (Hadoop Distributed File System) 負責儲存；MapReduce 負責運算；YARN 負責資源管理。"
+                },
+                {
+                    q: "大數據處理的 ETL 流程，字母 T 代表什麼？",
+                    options: ["Transfer (轉移)", "Transform (轉換)", "Translate (翻譯)", "Transmit (傳輸)"],
+                    answer: 1,
+                    exp: "ETL = Extract (擷取) → Transform (轉換清洗) → Load (載入)。"
+                },
+                {
+                    q: "關於「資料倉儲」與「資料湖」的比較，下列何者正確？",
+                    options: ["資料倉儲只能存結構化資料，資料湖什麼都能存", "資料倉儲是 Schema on Read，資料湖是 Schema on Write", "資料倉儲成本較低，資料湖成本較高", "兩者完全一樣，只是名字不同"],
+                    answer: 0,
+                    exp: "資料倉儲存整理過的結構化資料 (Schema on Write)；資料湖存各種原始資料 (Schema on Read)。"
+                },
+                {
+                    q: "Apache Spark 處理速度比 MapReduce 快的主要原因是？",
+                    options: ["使用更好的 CPU", "資料量比較小", "採用記憶體運算 (In-memory computing)", "使用 C++ 開發"],
+                    answer: 2,
+                    exp: "Spark 大量使用記憶體來存放運算中介資料（RDD），省去 MapReduce 頻繁讀寫硬碟的時間。"
+                }
+            ]
+        },
+        {
+            section: "Python 程式語言",
+            weight: 20,
+            questions: [
+                {
+                    q: "在 Python 中，哪一種資料結構是「無序且不允許重複元素」的？",
+                    options: ["List (列表)", "Tuple (元組)", "Dictionary (字典)", "Set (集合)"],
+                    answer: 3,
+                    exp: "Set（集合）無序且元素唯一；List 有序可重複；Tuple 有序不可改；Dict 是鍵值對。"
+                },
+                {
+                    q: "若執行 `for i in range(3): print(i)`，會輸出什麼？",
+                    options: ["1, 2, 3", "0, 1, 2", "0, 1, 2, 3", "報錯"],
+                    answer: 1,
+                    exp: "range(n) 會從 0 開始，產生到 n-1 的整數序列，所以是 0, 1, 2。"
+                },
+                {
+                    q: "Python 中用來比較「兩個變數是否指向同一個記憶體位置」的運算子是？",
+                    options: ["==", "equals()", "is", "==="],
+                    answer: 2,
+                    exp: "`==` 用來比較「值」是否相等；`is` 用來比較「記憶體位置 (身分)」是否相同。"
+                },
+                {
+                    q: "用 Python 讀取 CSV 檔案做資料分析，最常使用的套件是？",
+                    options: ["numpy", "matplotlib", "requests", "pandas"],
+                    answer: 3,
+                    exp: "pandas 是最強大的資料處理套件，常用的指令是 `pd.read_csv()`。"
+                },
+                {
+                    q: "下列哪一個是合法的 Python 列表推導式 (List Comprehension) 寫法？",
+                    options: ["[x**2 for x in range(5)]", "{x**2: range(5)}", "list(x**2, range(5))", "for x in range(5) [x**2]"],
+                    answer: 0,
+                    exp: "語法為 `[expression for item in iterable]`，能在一行內快速建立列表。"
+                }
+            ]
+        },
+        {
+            section: "AI 整合應用",
+            weight: 15,
+            questions: [
+                {
+                    q: "AI Agent（代理）有別於傳統問答型 AI 的主要特徵是什麼？",
+                    options: ["可以生成圖片", "回答速度更快", "具備自主規劃步驟與採取行動的能力", "支援更多種語言"],
+                    answer: 2,
+                    exp: "Agent 具備 感知 → 思考規劃 → 行動 (呼叫工具) 的自主能力。"
+                },
+                {
+                    q: "MCP (Model Context Protocol) 的主要作用是？",
+                    options: ["用來訓練模型的新演算法", "標準化 AI 模型與外部資料/工具的溝通介面", "一種新的硬體架構", "加密使用者對話資料的協定"],
+                    answer: 1,
+                    exp: "MCP 是一個開放的標準協定，讓 AI 能以統一的方式安全存取本地檔案、資料庫等外部資源。"
+                },
+                {
+                    q: "在 Function Calling 機制中，AI 實際上做了什麼？",
+                    options: ["AI 直接在自己的伺服器上執行了程式碼", "AI 輸出特定格式的參數，要求系統(客戶端)去執行工具", "AI 把程式碼傳給人類去跑", "AI 拒絕執行"],
+                    answer: 1,
+                    exp: "AI 本身不能執行工具，它是做「決策」並輸出要呼叫的函數與參數，由系統端實際執行再把結果傳回給 AI。"
+                },
+                {
+                    q: "RAG (檢索增強生成) 技術的主要目的是為了解決 AI 的什麼問題？",
+                    options: ["解決運算速度太慢", "解決回答缺乏最新或內部資訊，容易產生幻覺 (Hallucination)", "解決翻譯不準確的問題", "解決無法理解語音的問題"],
+                    answer: 1,
+                    exp: "RAG 透過先從資料庫檢索真實資料，再餵給 AI 生成回答，大幅降低了 AI 胡說八道的機率。"
+                },
+                {
+                    q: "將解決特定問題的經驗、流程與細節記錄下來，讓 AI 未來能直接重複使用的模組稱為？",
+                    options: ["Tools (工具)", "Prompts (提示)", "Skills (技能)", "Agents (代理)"],
+                    answer: 2,
+                    exp: "Skill 就像是寫給 AI 的操作手冊或筆記，能幫助 AI 快速掌握特定任務的做法。"
+                }
+            ]
+        },
+        {
+            section: "資料模型 (Data Model)",
+            weight: 15,
+            questions: [
+                {
+                    q: "在資料庫建模的三個階段中，定義具體技術細節（如 VARCHAR、INT）的是哪個階段？",
+                    options: ["概念模型 (Conceptual)", "邏輯模型 (Logical)", "實體模型 (Physical)", "虛擬模型 (Virtual)"],
+                    answer: 2,
+                    exp: "實體模型 (Physical Model) 會針對特定的資料庫系統（如 MySQL）定義確切的資料型別與儲存結構。"
+                },
+                {
+                    q: "資料庫正規化中，要求「消除部份相依（非主鍵欄位必須完全依賴主鍵）」的是哪一個層級？",
+                    options: ["第一正規形 (1NF)", "第二正規形 (2NF)", "第三正規形 (3NF)", "反正規化"],
+                    answer: 1,
+                    exp: "1NF 要求原子性；2NF 要求消除部份相依；3NF 要求消除遞移相依。"
+                },
+                {
+                    q: "在 ER 圖中，用來表示實體(Entity)之間「關係(Relationship)」的圖形是？",
+                    options: ["矩形", "橢圓形", "菱形", "三角形"],
+                    answer: 2,
+                    exp: "矩形代表實體，橢圓形代表屬性，菱形代表關係。"
+                },
+                {
+                    q: "資料倉儲的維度建模中，專門用來儲存「業務數值與度量（如銷售金額）」且資料量極大的是？",
+                    options: ["維度表 (Dimension Table)", "事實表 (Fact Table)", "中介表 (Bridge Table)", "視圖 (View)"],
+                    answer: 1,
+                    exp: "事實表 (Fact) 存數值與外鍵；維度表 (Dimension) 存描述性的文字屬性。"
+                },
+                {
+                    q: "星型模型 (Star Schema) 相較於雪花模型 (Snowflake Schema)，其主要特徵為？",
+                    options: ["查詢速度較慢", "維度表進一步經過正規化", "維度表通常未經過正規化，查詢效能較快", "沒有事實表"],
+                    answer: 2,
+                    exp: "星型模型容許維度表有資料冗餘（反正規化），藉此減少 JOIN 的數量以提升查詢速度。"
+                }
+            ]
+        }
+    ];
+
+    // 動態生成題目 HTML
+    function renderQuestions() {
+        const container = document.getElementById("questionsContainer");
+        let html = "";
+        let qIndex = 0;
+
+        examData.forEach((section, sIdx) => {
+            html += `
+            <div class="exam-section" id="section-${sIdx}">
+                <h2 class="section-title">
+                    ${section.section}
+                    <span class="section-badge">佔比 ${section.weight}%</span>
+                </h2>
+            `;
+
+            section.questions.forEach((q, qIdx) => {
+                const globalIndex = qIndex++;
+                html += `
+                <div class="question-card" id="q-card-${sIdx}-${qIdx}">
+                    <div class="question-text">${qIdx + 1}. ${q.q}</div>
+                    <div class="options-grid">
+                `;
+
+                q.options.forEach((opt, oIdx) => {
+                    html += `
+                        <label class="option-label" id="label-${sIdx}-${qIdx}-${oIdx}">
+                            <input type="radio" name="q-${sIdx}-${qIdx}" value="${oIdx}" class="option-input">
+                            <span class="option-text">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <div class="explanation" id="exp-${sIdx}-${qIdx}">
+                        <strong>💡 解析：</strong> ${q.exp}
+                    </div>
+                </div>
+                `;
+            });
+
+            html += `</div>`;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // 批改考卷
+    function gradeExam() {
+        let totalScore = 0;
+        let totalQuestions = 0;
+        let sectionScores = [];
+
+        examData.forEach((section, sIdx) => {
+            let sectionCorrect = 0;
+            
+            section.questions.forEach((q, qIdx) => {
+                totalQuestions++;
+                const selected = document.querySelector(`input[name="q-${sIdx}-${qIdx}"]:checked`);
+                const expBox = document.getElementById(`exp-${sIdx}-${qIdx}`);
+                
+                // 重置所有選項樣式
+                for(let i=0; i<4; i++) {
+                    const label = document.getElementById(`label-${sIdx}-${qIdx}-${i}`);
+                    if(label) label.className = "option-label";
+                }
+
+                if (selected) {
+                    const userAns = parseInt(selected.value);
+                    const userLabel = document.getElementById(`label-${sIdx}-${qIdx}-${userAns}`);
+                    const correctLabel = document.getElementById(`label-${sIdx}-${qIdx}-${q.answer}`);
+
+                    if (userAns === q.answer) {
+                        // 答對了
+                        sectionCorrect++;
+                        userLabel.classList.add("correct");
+                    } else {
+                        // 答錯了
+                        userLabel.classList.add("incorrect");
+                        correctLabel.classList.add("correct"); // 標示出正確答案
+                    }
+                } else {
+                    // 沒作答，標示正確答案
+                    const correctLabel = document.getElementById(`label-${sIdx}-${qIdx}-${q.answer}`);
+                    correctLabel.classList.add("correct");
+                }
+
+                // 顯示解析
+                expBox.classList.add("show");
+            });
+
+            // 計算該科得分（按權重）
+            const sectionScore = (sectionCorrect / section.questions.length) * section.weight;
+            totalScore += sectionScore;
+            
+            sectionScores.push({
+                name: section.section,
+                score: sectionScore,
+                maxScore: section.weight,
+                correct: sectionCorrect,
+                total: section.questions.length
+            });
+        });
+
+        // 顯示結果面板
+        showResults(totalScore, sectionScores);
+        
+        // 禁用按鈕
+        const btn = document.getElementById("submitBtn");
+        btn.innerText = "已交卷";
+        btn.disabled = true;
+    }
+
+    // 顯示結果
+    function showResults(totalScore, sectionScores) {
+        const panel = document.getElementById("resultPanel");
+        const scoreText = document.getElementById("totalScore");
+        const scoreCircle = document.getElementById("scoreCircle");
+        const scoreDesc = document.getElementById("scoreDesc");
+        const detailsContainer = document.getElementById("scoreDetails");
+        
+        // 圓環動畫
+        panel.style.display = "block";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        let currentScore = 0;
+        const targetScore = Math.round(totalScore);
+        
+        const timer = setInterval(() => {
+            currentScore += 1;
+            if (currentScore >= targetScore) {
+                currentScore = targetScore;
+                clearInterval(timer);
+            }
+            scoreText.innerText = currentScore;
+            
+            // 決定顏色和評語
+            let color = "var(--danger)";
+            let desc = "需要再加把勁！建議多看幾次教材。";
+            
+            if (currentScore >= 90) {
+                color = "var(--success)";
+                desc = "太神啦 Ann！貿協等妳來報到！🎉";
+            } else if (currentScore >= 75) {
+                color = "var(--accent-primary)";
+                desc = "表現很棒！只差一點點就是完美了！💪";
+            } else if (currentScore >= 60) {
+                color = "var(--warning)";
+                desc = "及格了！但把錯題搞懂會更穩喔！";
+            }
+            
+            scoreCircle.style.background = `conic-gradient(${color} ${currentScore}%, var(--bg-tertiary) 0%)`;
+            scoreText.style.color = color;
+            scoreDesc.innerText = desc;
+        }, 15);
+
+        // 顯示各科明細
+        let detailsHtml = "";
+        sectionScores.forEach(s => {
+            detailsHtml += `
+                <div class="detail-item">
+                    <div class="detail-title">${s.name}</div>
+                    <div class="detail-score">${Math.round(s.score)} / ${s.maxScore} 分</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary)">
+                        答對 ${s.correct}/${s.total} 題
+                    </div>
+                </div>
+            `;
+        });
+        detailsContainer.innerHTML = detailsHtml;
+    }
+
+    // 初始化
+    window.onload = () => {
+        renderQuestions();
+    };
+</script>
+</body>
+</html>

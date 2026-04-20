@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>貿協數據分析B組 - 考前衝刺指南</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Highlight.js for Code Formatting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    
+    <style>
+        :root {
+            /* 現代暗色主題配色 */
+            --bg-primary: #0f111a;
+            --bg-secondary: #1a1d2d;
+            --bg-tertiary: #252a40;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --border-color: #2e344e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        /* 滾動條美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary); 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-color); 
+        }
+
+        /* 側邊欄 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 16px 12px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* 主內容區 */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .topbar {
+            height: 60px;
+            background-color: rgba(26, 29, 45, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            justify-content: space-between;
+            z-index: 5;
+        }
+
+        .topbar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .btn-exam {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .btn-exam:hover {
+            opacity: 0.9;
+        }
+
+        .content-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 40px;
+            scroll-behavior: smooth;
+        }
+
+        .markdown-body {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--bg-secondary);
+            padding: 48px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Markdown 樣式定義 */
+        .markdown-body h1 {
+            font-size: 2.2rem;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
+            color: white;
+        }
+
+        .markdown-body h2 {
+            font-size: 1.6rem;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            color: var(--accent-primary);
+        }
+
+        .markdown-body h3 {
+            font-size: 1.25rem;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: #cbd5e1;
+        }
+
+        .markdown-body p {
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+
+        .markdown-body ul, .markdown-body ol {
+            margin-bottom: 16px;
+            padding-left: 24px;
+            color: #cbd5e1;
+        }
+
+        .markdown-body li {
+            margin-bottom: 8px;
+        }
+
+        .markdown-body blockquote {
+            border-left: 4px solid var(--accent-secondary);
+            padding: 12px 16px;
+            background-color: rgba(139, 92, 246, 0.1);
+            margin: 24px 0;
+            border-radius: 0 8px 8px 0;
+            color: #e2e8f0;
+        }
+
+        .markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .markdown-body th {
+            background-color: var(--bg-tertiary);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: white;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .markdown-body td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+        }
+
+        .markdown-body tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .markdown-body tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .markdown-body pre {
+            background-color: #0d1117;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 24px 0;
+            border: 1px solid #30363d;
+        }
+
+        .markdown-body code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+
+        .markdown-body p code, .markdown-body li code, .markdown-body td code {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #93c5fd;
+        }
+
+        /* 歡迎頁面特效 */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            background: radial-gradient(circle at center, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+        }
+
+        .welcome-icon {
+            font-size: 5rem;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .start-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.5);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 側邊欄 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="sidebar-title">考前衝刺指南</h1>
+            <div class="sidebar-subtitle">貿協數據分析 B 組</div>
+        </div>
+        <ul class="nav-list" id="navList">
+            <!-- JavaScript 會動態產生導航項目 -->
+        </ul>
+    </aside>
+
+    <!-- 主內容區 -->
+    <main class="main-content">
+        <div class="topbar">
+            <div class="topbar-title" id="topbarTitle">歡迎</div>
+            <a href="mock-exam.html" class="btn-exam">前往模擬考 📝</a>
+        </div>
+        <div class="content-area" id="contentArea">
+            
+            <!-- 歡迎畫面 -->
+            <div class="welcome-screen fade-in" id="welcomeScreen">
+                <div class="welcome-icon">🍤</div>
+                <h2 class="welcome-title">Ann 準備好拿高分了嗎？</h2>
+                <p class="welcome-text">
+                    距離考試只剩 6 天！甜蝦幫妳整理了這五個科目的精華筆記。
+                    左邊是目錄，點擊即可開始複習。讀完之後可以去右上方測驗一下喔！
+                </p>
+                <button class="start-btn" onclick="loadContent('01_SQL.md')">開始學習 SQL (30%)</button>
+            </div>
+
+            <!-- Markdown 渲染區 -->
+            <div class="markdown-body fade-in" id="markdownBody" style="display: none;"></div>
+
+        </div>
+    </main>
+
+    <!-- 載入外部套件 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    
+    <!-- 載入我們打包好的 Markdown 內容 (content_data.js) -->
+    <script src="content_data.js"></script>
+
+    <script>
+        // 設定 Marked.js (支援語法高亮)
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    return hljs.highlight(code, { language: lang }).value;
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true
+        });
+
+        // 定義課程結構
+        const courses = [
+            { id: '01_SQL.md', title: 'SQL 查詢語言', icon: '📊', badge: '30%', file: '01_SQL.md' },
+            { id: '02_BigData.md', title: '大數據基本概要', icon: '📡', badge: '20%', file: '02_BigData.md' },
+            { id: '03_Python.md', title: 'Python 程式語言', icon: '🐍', badge: '20%', file: '03_Python.md' },
+            { id: '04_AI_Integration.md', title: 'AI 整合應用', icon: '🤖', badge: '15%', file: '04_AI_Integration.md' },
+            { id: '05_DataModel.md', title: '資料模型', icon: '🗂️', badge: '15%', file: '05_DataModel.md' }
+        ];
+
+        // 初始化導航欄
+        function initNavigation() {
+            const navList = document.getElementById('navList');
+            courses.forEach(course => {
+                const li = document.createElement('li');
+                li.className = 'nav-item';
+                li.innerHTML = `
+                    <a class="nav-link" id="nav-${course.id}" onclick="loadContent('${course.id}')">
+                        <span class="nav-icon">${course.icon}</span>
+                        ${course.title}
+                        <span class="nav-badge">${course.badge}</span>
+                    </a>
+                `;
+                navList.appendChild(li);
+            });
+        }
+
+        // 載入內容
+        function loadContent(courseId) {
+            // 更新 UI 狀態
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            const activeLink = document.getElementById(`nav-${courseId}`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+                
+                // 更新上方標題
+                const course = courses.find(c => c.id === courseId);
+                document.getElementById('topbarTitle').innerText = `${course.icon} ${course.title}`;
+            }
+
+            // 切換視圖
+            document.getElementById('welcomeScreen').style.display = 'none';
+            const mdBody = document.getElementById('markdownBody');
+            mdBody.style.display = 'block';
+
+            // 確保 markdownData 變數存在 (由 content_data.js 提供)
+            if (typeof markdownData !== 'undefined' && markdownData[courseId]) {
+                const rawMarkdown = markdownData[courseId];
+                // 渲染 Markdown
+                mdBody.innerHTML = marked.parse(rawMarkdown);
+                
+                // 回到頂部
+                document.getElementById('contentArea').scrollTop = 0;
+            } else {
+                mdBody.innerHTML = `<h2>⚠️ 載入失敗</h2><p>找不到檔案: ${courseId}</p><p>請確認 content_data.js 是否正確載入。</p>`;
+            }
+        }
+
+        // 執行初始化
+        window.onload = () => {
+            initNavigation();
+        };
+    </script>
+</body>
+</html>
